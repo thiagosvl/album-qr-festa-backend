@@ -1,0 +1,4265 @@
+﻿export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "13.0.4"
+  }
+  public: {
+    Tables: {
+      app_updates: {
+        Row: {
+          changelog: string | null
+          created_at: string | null
+          force_update: boolean | null
+          id: string
+          latest_version: string
+          platform: string
+          url_zip: string
+        }
+        Insert: {
+          changelog?: string | null
+          created_at?: string | null
+          force_update?: boolean | null
+          id?: string
+          latest_version: string
+          platform: string
+          url_zip: string
+        }
+        Update: {
+          changelog?: string | null
+          created_at?: string | null
+          force_update?: boolean | null
+          id?: string
+          latest_version?: string
+          platform?: string
+          url_zip?: string
+        }
+        Relationships: []
+      }
+      assinatura_faturas: {
+        Row: {
+          assinatura_id: string
+          created_at: string | null
+          data_pagamento: string | null
+          data_vencimento: string
+          gateway_txid: string | null
+          id: string
+          metodo_pagamento: string
+          parcelas: number
+          pix_copy_paste: string | null
+          plano_id: string | null
+          status: string
+          updated_at: string | null
+          usuario_id: string
+          valor: number
+          valor_parcela: number | null
+          valor_total: number | null
+        }
+        Insert: {
+          assinatura_id: string
+          created_at?: string | null
+          data_pagamento?: string | null
+          data_vencimento: string
+          gateway_txid?: string | null
+          id?: string
+          metodo_pagamento: string
+          parcelas?: number
+          pix_copy_paste?: string | null
+          plano_id?: string | null
+          status?: string
+          updated_at?: string | null
+          usuario_id: string
+          valor: number
+          valor_parcela?: number | null
+          valor_total?: number | null
+        }
+        Update: {
+          assinatura_id?: string
+          created_at?: string | null
+          data_pagamento?: string | null
+          data_vencimento?: string
+          gateway_txid?: string | null
+          id?: string
+          metodo_pagamento?: string
+          parcelas?: number
+          pix_copy_paste?: string | null
+          plano_id?: string | null
+          status?: string
+          updated_at?: string | null
+          usuario_id?: string
+          valor?: number
+          valor_parcela?: number | null
+          valor_total?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assinatura_faturas_assinatura_id_fkey"
+            columns: ["assinatura_id"]
+            isOneToOne: false
+            referencedRelation: "assinaturas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assinatura_faturas_plano_id_fkey"
+            columns: ["plano_id"]
+            isOneToOne: false
+            referencedRelation: "planos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assinatura_faturas_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assinatura_notificacoes: {
+        Row: {
+          ciclo_referencia: string
+          enviado_em: string | null
+          id: string
+          tipo: string
+          usuario_id: string
+        }
+        Insert: {
+          ciclo_referencia: string
+          enviado_em?: string | null
+          id?: string
+          tipo: string
+          usuario_id: string
+        }
+        Update: {
+          ciclo_referencia?: string
+          enviado_em?: string | null
+          id?: string
+          tipo?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assinatura_notificacoes_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assinaturas: {
+        Row: {
+          created_at: string | null
+          data_fim_promocao: string | null
+          data_inicio: string | null
+          data_vencimento: string | null
+          gateway_subscription_id: string | null
+          id: string
+          metodo_pagamento: string | null
+          metodo_pagamento_preferencial_id: string | null
+          plano_id: string
+          status: string
+          trial_ends_at: string | null
+          trial_estendido: boolean
+          updated_at: string | null
+          usuario_id: string
+          valor_base_anual: number | null
+          valor_base_mensal: number | null
+          valor_promocional_anual: number | null
+          valor_promocional_mensal: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          data_fim_promocao?: string | null
+          data_inicio?: string | null
+          data_vencimento?: string | null
+          gateway_subscription_id?: string | null
+          id?: string
+          metodo_pagamento?: string | null
+          metodo_pagamento_preferencial_id?: string | null
+          plano_id: string
+          status?: string
+          trial_ends_at?: string | null
+          trial_estendido?: boolean
+          updated_at?: string | null
+          usuario_id: string
+          valor_base_anual?: number | null
+          valor_base_mensal?: number | null
+          valor_promocional_anual?: number | null
+          valor_promocional_mensal?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          data_fim_promocao?: string | null
+          data_inicio?: string | null
+          data_vencimento?: string | null
+          gateway_subscription_id?: string | null
+          id?: string
+          metodo_pagamento?: string | null
+          metodo_pagamento_preferencial_id?: string | null
+          plano_id?: string
+          status?: string
+          trial_ends_at?: string | null
+          trial_estendido?: boolean
+          updated_at?: string | null
+          usuario_id?: string
+          valor_base_anual?: number | null
+          valor_base_mensal?: number | null
+          valor_promocional_anual?: number | null
+          valor_promocional_mensal?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assinaturas_metodo_pagamento_preferencial_id_fkey"
+            columns: ["metodo_pagamento_preferencial_id"]
+            isOneToOne: false
+            referencedRelation: "metodos_pagamento"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assinaturas_plano_id_fkey"
+            columns: ["plano_id"]
+            isOneToOne: false
+            referencedRelation: "planos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assinaturas_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_posts: {
+        Row: {
+          author_id: string | null
+          content: string
+          cover_image_url: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          published_at: string | null
+          slug: string
+          status: string
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          content: string
+          cover_image_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published_at?: string | null
+          slug: string
+          status?: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          content?: string
+          cover_image_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published_at?: string | null
+          slug?: string
+          status?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cobrancas: {
+        Row: {
+          ano: number
+          ano_letivo: number | null
+          boleto_codigo_barras: string | null
+          boleto_linha_digitavel: string | null
+          boleto_nosso_numero: string | null
+          boleto_url: string | null
+          chave_pix_repasse: string | null
+          created_at: string
+          data_envio_ultima_notificacao: string | null
+          data_pagamento: string | null
+          data_vencimento: string
+          desativar_lembretes: boolean
+          id: string
+          mes: number
+          observacao: string | null
+          pagamento_manual: boolean | null
+          passageiro_id: string
+          pix_copia_cola: string | null
+          pix_expiracao: string | null
+          pix_qrcode_url: string | null
+          provedor:
+            | Database["public"]["Enums"]["provedor_pagamento_enum"]
+            | null
+          provedor_cobranca_id: string | null
+          recibo_url: string | null
+          repasse_em_processamento: boolean | null
+          status: string
+          tipo_pagamento:
+            | Database["public"]["Enums"]["tipo_pagamento_enum"]
+            | null
+          updated_at: string
+          usuario_id: string | null
+          valor: number
+          valor_juros: number | null
+          valor_multa: number | null
+          valor_pago: number | null
+          valor_taxa_plataforma: number | null
+        }
+        Insert: {
+          ano: number
+          ano_letivo?: number | null
+          boleto_codigo_barras?: string | null
+          boleto_linha_digitavel?: string | null
+          boleto_nosso_numero?: string | null
+          boleto_url?: string | null
+          chave_pix_repasse?: string | null
+          created_at?: string
+          data_envio_ultima_notificacao?: string | null
+          data_pagamento?: string | null
+          data_vencimento: string
+          desativar_lembretes?: boolean
+          id?: string
+          mes: number
+          observacao?: string | null
+          pagamento_manual?: boolean | null
+          passageiro_id: string
+          pix_copia_cola?: string | null
+          pix_expiracao?: string | null
+          pix_qrcode_url?: string | null
+          provedor?:
+            | Database["public"]["Enums"]["provedor_pagamento_enum"]
+            | null
+          provedor_cobranca_id?: string | null
+          recibo_url?: string | null
+          repasse_em_processamento?: boolean | null
+          status?: string
+          tipo_pagamento?:
+            | Database["public"]["Enums"]["tipo_pagamento_enum"]
+            | null
+          updated_at?: string
+          usuario_id?: string | null
+          valor: number
+          valor_juros?: number | null
+          valor_multa?: number | null
+          valor_pago?: number | null
+          valor_taxa_plataforma?: number | null
+        }
+        Update: {
+          ano?: number
+          ano_letivo?: number | null
+          boleto_codigo_barras?: string | null
+          boleto_linha_digitavel?: string | null
+          boleto_nosso_numero?: string | null
+          boleto_url?: string | null
+          chave_pix_repasse?: string | null
+          created_at?: string
+          data_envio_ultima_notificacao?: string | null
+          data_pagamento?: string | null
+          data_vencimento?: string
+          desativar_lembretes?: boolean
+          id?: string
+          mes?: number
+          observacao?: string | null
+          pagamento_manual?: boolean | null
+          passageiro_id?: string
+          pix_copia_cola?: string | null
+          pix_expiracao?: string | null
+          pix_qrcode_url?: string | null
+          provedor?:
+            | Database["public"]["Enums"]["provedor_pagamento_enum"]
+            | null
+          provedor_cobranca_id?: string | null
+          recibo_url?: string | null
+          repasse_em_processamento?: boolean | null
+          status?: string
+          tipo_pagamento?:
+            | Database["public"]["Enums"]["tipo_pagamento_enum"]
+            | null
+          updated_at?: string
+          usuario_id?: string | null
+          valor?: number
+          valor_juros?: number | null
+          valor_multa?: number | null
+          valor_pago?: number | null
+          valor_taxa_plataforma?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cobrancas_passageiro_id_fkey"
+            columns: ["passageiro_id"]
+            isOneToOne: false
+            referencedRelation: "passageiros"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cobrancas_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cobrancas_repasses: {
+        Row: {
+          chave_pix: string | null
+          cobranca_id: string | null
+          created_at: string
+          data_pagamento_pai: string | null
+          data_repasse_motorista: string | null
+          end_to_end_id_in: string | null
+          end_to_end_id_out: string | null
+          id: string
+          motorista_id: string | null
+          pagador_banco: string | null
+          pagador_documento: string | null
+          pagador_nome: string | null
+          passageiro_id: string | null
+          provedor: Database["public"]["Enums"]["provedor_pagamento_enum"]
+          saque_provedor_id: string | null
+          status_repasse: Database["public"]["Enums"]["status_repasse_enum"]
+          tarifa_gateway_pix_in: number
+          tarifa_gateway_saque: number
+          taxa_plataforma: number
+          tentativas: number
+          transacao_provedor_id: string
+          ultimo_erro: string | null
+          updated_at: string
+          valor_bruto: number
+          valor_liquido_motorista: number
+        }
+        Insert: {
+          chave_pix?: string | null
+          cobranca_id?: string | null
+          created_at?: string
+          data_pagamento_pai?: string | null
+          data_repasse_motorista?: string | null
+          end_to_end_id_in?: string | null
+          end_to_end_id_out?: string | null
+          id?: string
+          motorista_id?: string | null
+          pagador_banco?: string | null
+          pagador_documento?: string | null
+          pagador_nome?: string | null
+          passageiro_id?: string | null
+          provedor?: Database["public"]["Enums"]["provedor_pagamento_enum"]
+          saque_provedor_id?: string | null
+          status_repasse?: Database["public"]["Enums"]["status_repasse_enum"]
+          tarifa_gateway_pix_in?: number
+          tarifa_gateway_saque?: number
+          taxa_plataforma: number
+          tentativas?: number
+          transacao_provedor_id: string
+          ultimo_erro?: string | null
+          updated_at?: string
+          valor_bruto: number
+          valor_liquido_motorista: number
+        }
+        Update: {
+          chave_pix?: string | null
+          cobranca_id?: string | null
+          created_at?: string
+          data_pagamento_pai?: string | null
+          data_repasse_motorista?: string | null
+          end_to_end_id_in?: string | null
+          end_to_end_id_out?: string | null
+          id?: string
+          motorista_id?: string | null
+          pagador_banco?: string | null
+          pagador_documento?: string | null
+          pagador_nome?: string | null
+          passageiro_id?: string | null
+          provedor?: Database["public"]["Enums"]["provedor_pagamento_enum"]
+          saque_provedor_id?: string | null
+          status_repasse?: Database["public"]["Enums"]["status_repasse_enum"]
+          tarifa_gateway_pix_in?: number
+          tarifa_gateway_saque?: number
+          taxa_plataforma?: number
+          tentativas?: number
+          transacao_provedor_id?: string
+          ultimo_erro?: string | null
+          updated_at?: string
+          valor_bruto?: number
+          valor_liquido_motorista?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cobrancas_repasses_cobranca_id_fkey"
+            columns: ["cobranca_id"]
+            isOneToOne: false
+            referencedRelation: "cobrancas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cobrancas_repasses_motorista_id_fkey"
+            columns: ["motorista_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cobrancas_repasses_passageiro_id_fkey"
+            columns: ["passageiro_id"]
+            isOneToOne: false
+            referencedRelation: "passageiros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      configuracao_interna: {
+        Row: {
+          chave: string
+          id: number
+          valor: string
+        }
+        Insert: {
+          chave: string
+          id?: number
+          valor: string
+        }
+        Update: {
+          chave?: string
+          id?: number
+          valor?: string
+        }
+        Relationships: []
+      }
+      contratos: {
+        Row: {
+          ano: number | null
+          assinado_em: string | null
+          assinatura_metadados: Json | null
+          contrato_final_url: string | null
+          created_at: string
+          dados_contrato: Json
+          data_fim: string | null
+          data_inicio: string | null
+          dia_vencimento: number | null
+          expira_em: string | null
+          id: string
+          juros_atraso_tipo: string | null
+          juros_atraso_valor: number | null
+          minuta_url: string | null
+          multa_atraso_tipo: string | null
+          multa_atraso_valor: number | null
+          multa_rescisao_tipo: string | null
+          multa_rescisao_valor: number | null
+          passageiro_id: string
+          provider: string
+          provider_document_id: string | null
+          provider_link_assinatura: string | null
+          qtd_parcelas: number | null
+          status: string
+          token_acesso: string
+          updated_at: string
+          usuario_id: string
+          valor_parcela: number | null
+          valor_total: number | null
+        }
+        Insert: {
+          ano?: number | null
+          assinado_em?: string | null
+          assinatura_metadados?: Json | null
+          contrato_final_url?: string | null
+          created_at?: string
+          dados_contrato: Json
+          data_fim?: string | null
+          data_inicio?: string | null
+          dia_vencimento?: number | null
+          expira_em?: string | null
+          id?: string
+          juros_atraso_tipo?: string | null
+          juros_atraso_valor?: number | null
+          minuta_url?: string | null
+          multa_atraso_tipo?: string | null
+          multa_atraso_valor?: number | null
+          multa_rescisao_tipo?: string | null
+          multa_rescisao_valor?: number | null
+          passageiro_id: string
+          provider?: string
+          provider_document_id?: string | null
+          provider_link_assinatura?: string | null
+          qtd_parcelas?: number | null
+          status?: string
+          token_acesso: string
+          updated_at?: string
+          usuario_id: string
+          valor_parcela?: number | null
+          valor_total?: number | null
+        }
+        Update: {
+          ano?: number | null
+          assinado_em?: string | null
+          assinatura_metadados?: Json | null
+          contrato_final_url?: string | null
+          created_at?: string
+          dados_contrato?: Json
+          data_fim?: string | null
+          data_inicio?: string | null
+          dia_vencimento?: number | null
+          expira_em?: string | null
+          id?: string
+          juros_atraso_tipo?: string | null
+          juros_atraso_valor?: number | null
+          minuta_url?: string | null
+          multa_atraso_tipo?: string | null
+          multa_atraso_valor?: number | null
+          multa_rescisao_tipo?: string | null
+          multa_rescisao_valor?: number | null
+          passageiro_id?: string
+          provider?: string
+          provider_document_id?: string | null
+          provider_link_assinatura?: string | null
+          qtd_parcelas?: number | null
+          status?: string
+          token_acesso?: string
+          updated_at?: string
+          usuario_id?: string
+          valor_parcela?: number | null
+          valor_total?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contratos_passageiro_id_fkey"
+            columns: ["passageiro_id"]
+            isOneToOne: false
+            referencedRelation: "passageiros"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contratos_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      convite_confirmacoes: {
+        Row: {
+          adultos: number
+          atualizado_em: string
+          criado_em: string
+          criancas: number
+          id: string
+          nome: string
+          pessoas: Json
+        }
+        Insert: {
+          adultos?: number
+          atualizado_em?: string
+          criado_em?: string
+          criancas?: number
+          id?: string
+          nome: string
+          pessoas?: Json
+        }
+        Update: {
+          adultos?: number
+          atualizado_em?: string
+          criado_em?: string
+          criancas?: number
+          id?: string
+          nome?: string
+          pessoas?: Json
+        }
+        Relationships: []
+      }
+      escolas: {
+        Row: {
+          ativo: boolean
+          bairro: string | null
+          cep: string | null
+          cidade: string | null
+          complemento: string | null
+          created_at: string
+          estado: string | null
+          id: string
+          logradouro: string | null
+          nome: string
+          numero: string | null
+          referencia: string | null
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          ativo?: boolean
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          complemento?: string | null
+          created_at?: string
+          estado?: string | null
+          id?: string
+          logradouro?: string | null
+          nome: string
+          numero?: string | null
+          referencia?: string | null
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          ativo?: boolean
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          complemento?: string | null
+          created_at?: string
+          estado?: string | null
+          id?: string
+          logradouro?: string | null
+          nome?: string
+          numero?: string | null
+          referencia?: string | null
+          updated_at?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "escolas_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      evt_eventos: {
+        Row: {
+          ativo: boolean
+          boas_vindas: string | null
+          cor_primaria: string
+          cor_secundaria: string
+          created_at: string
+          id: string
+          slug: string
+          subtitulo: string | null
+          titulo: string
+        }
+        Insert: {
+          ativo?: boolean
+          boas_vindas?: string | null
+          cor_primaria?: string
+          cor_secundaria?: string
+          created_at?: string
+          id?: string
+          slug: string
+          subtitulo?: string | null
+          titulo: string
+        }
+        Update: {
+          ativo?: boolean
+          boas_vindas?: string | null
+          cor_primaria?: string
+          cor_secundaria?: string
+          created_at?: string
+          id?: string
+          slug?: string
+          subtitulo?: string | null
+          titulo?: string
+        }
+        Relationships: []
+      }
+      evt_fotos: {
+        Row: {
+          autor: string | null
+          created_at: string
+          curtidas: number
+          evento_id: string
+          id: string
+          oculta: boolean
+          path: string
+        }
+        Insert: {
+          autor?: string | null
+          created_at?: string
+          curtidas?: number
+          evento_id: string
+          id?: string
+          oculta?: boolean
+          path: string
+        }
+        Update: {
+          autor?: string | null
+          created_at?: string
+          curtidas?: number
+          evento_id?: string
+          id?: string
+          oculta?: boolean
+          path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evt_fotos_evento_id_fkey"
+            columns: ["evento_id"]
+            isOneToOne: false
+            referencedRelation: "evt_eventos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      execucoes_rota: {
+        Row: {
+          created_at: string
+          finalizada_em: string | null
+          id: string
+          iniciada_em: string
+          modo_execucao: string
+          notificar_conclusao_parada: boolean
+          notificar_inicio_rota: boolean
+          notificar_pais: boolean
+          notificar_proxima_parada: boolean
+          rastreamento_ativo: boolean
+          rastreamento_modo: string
+          rota_id: string
+          status: Database["public"]["Enums"]["execucao_rota_status_enum"]
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string
+          finalizada_em?: string | null
+          id?: string
+          iniciada_em?: string
+          modo_execucao?: string
+          notificar_conclusao_parada?: boolean
+          notificar_inicio_rota?: boolean
+          notificar_pais?: boolean
+          notificar_proxima_parada?: boolean
+          rastreamento_ativo?: boolean
+          rastreamento_modo?: string
+          rota_id: string
+          status?: Database["public"]["Enums"]["execucao_rota_status_enum"]
+          usuario_id: string
+        }
+        Update: {
+          created_at?: string
+          finalizada_em?: string | null
+          id?: string
+          iniciada_em?: string
+          modo_execucao?: string
+          notificar_conclusao_parada?: boolean
+          notificar_inicio_rota?: boolean
+          notificar_pais?: boolean
+          notificar_proxima_parada?: boolean
+          rastreamento_ativo?: boolean
+          rastreamento_modo?: string
+          rota_id?: string
+          status?: Database["public"]["Enums"]["execucao_rota_status_enum"]
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "execucoes_rota_rota_id_fkey"
+            columns: ["rota_id"]
+            isOneToOne: false
+            referencedRelation: "rotas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "execucoes_rota_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      execucoes_rota_passageiros: {
+        Row: {
+          created_at: string
+          escola_id: string | null
+          execucao_rota_id: string
+          id: string
+          notificacao_a_caminho_enviada: boolean
+          notificacao_concluido_enviada: boolean
+          notificacao_inicio_enviada: boolean
+          notificado_em: string | null
+          ordem: number
+          passageiro_id: string | null
+          sentido: string | null
+          status: Database["public"]["Enums"]["execucao_passageiro_status_enum"]
+          tipo_no: Database["public"]["Enums"]["tipo_no_rota_enum"]
+          visitado_em: string | null
+        }
+        Insert: {
+          created_at?: string
+          escola_id?: string | null
+          execucao_rota_id: string
+          id?: string
+          notificacao_a_caminho_enviada?: boolean
+          notificacao_concluido_enviada?: boolean
+          notificacao_inicio_enviada?: boolean
+          notificado_em?: string | null
+          ordem: number
+          passageiro_id?: string | null
+          sentido?: string | null
+          status?: Database["public"]["Enums"]["execucao_passageiro_status_enum"]
+          tipo_no?: Database["public"]["Enums"]["tipo_no_rota_enum"]
+          visitado_em?: string | null
+        }
+        Update: {
+          created_at?: string
+          escola_id?: string | null
+          execucao_rota_id?: string
+          id?: string
+          notificacao_a_caminho_enviada?: boolean
+          notificacao_concluido_enviada?: boolean
+          notificacao_inicio_enviada?: boolean
+          notificado_em?: string | null
+          ordem?: number
+          passageiro_id?: string | null
+          sentido?: string | null
+          status?: Database["public"]["Enums"]["execucao_passageiro_status_enum"]
+          tipo_no?: Database["public"]["Enums"]["tipo_no_rota_enum"]
+          visitado_em?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "execucoes_rota_passageiros_escola_id_fkey"
+            columns: ["escola_id"]
+            isOneToOne: false
+            referencedRelation: "escolas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "execucoes_rota_passageiros_execucao_rota_id_fkey"
+            columns: ["execucao_rota_id"]
+            isOneToOne: false
+            referencedRelation: "execucoes_rota"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "execucoes_rota_passageiros_passageiro_id_fkey"
+            columns: ["passageiro_id"]
+            isOneToOne: false
+            referencedRelation: "passageiros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      festa_catalogo_extras_b2c: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          descricao: string | null
+          efeito_tipo: Database["public"]["Enums"]["festa_efeito_extra_enum"]
+          efeito_valor: number
+          id: string
+          nome: string
+          ordem: number
+          preco_centavos: number
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          efeito_tipo?: Database["public"]["Enums"]["festa_efeito_extra_enum"]
+          efeito_valor?: number
+          id?: string
+          nome: string
+          ordem?: number
+          preco_centavos: number
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          efeito_tipo?: Database["public"]["Enums"]["festa_efeito_extra_enum"]
+          efeito_valor?: number
+          id?: string
+          nome?: string
+          ordem?: number
+          preco_centavos?: number
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      festa_catalogo_pacotes_b2c: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          descricao: string | null
+          dias_galeria_ativa: number
+          id: string
+          inclui_qr_tematico: boolean
+          inclui_telao: boolean
+          limite_molduras: number
+          nome_exibicao: string
+          ordem: number
+          permite_video: boolean
+          preco_ancora_centavos: number | null
+          preco_centavos: number
+          tipo_pacote: Database["public"]["Enums"]["festa_pacote_tipo_enum"]
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          dias_galeria_ativa?: number
+          id?: string
+          inclui_qr_tematico?: boolean
+          inclui_telao?: boolean
+          limite_molduras?: number
+          nome_exibicao: string
+          ordem?: number
+          permite_video?: boolean
+          preco_ancora_centavos?: number | null
+          preco_centavos: number
+          tipo_pacote: Database["public"]["Enums"]["festa_pacote_tipo_enum"]
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          dias_galeria_ativa?: number
+          id?: string
+          inclui_qr_tematico?: boolean
+          inclui_telao?: boolean
+          limite_molduras?: number
+          nome_exibicao?: string
+          ordem?: number
+          permite_video?: boolean
+          preco_ancora_centavos?: number | null
+          preco_centavos?: number
+          tipo_pacote?: Database["public"]["Enums"]["festa_pacote_tipo_enum"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      festa_catalogo_planos_b2b: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          creditos_mensais: number
+          custo_creditos_basico: number
+          custo_creditos_completo: number
+          descricao: string | null
+          id: string
+          nome: string
+          ordem: number
+          preco_credito_avulso_centavos: number
+          preco_mensal_centavos: number
+          preco_unitario_basico_centavos: number | null
+          preco_unitario_completo_centavos: number | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          creditos_mensais?: number
+          custo_creditos_basico?: number
+          custo_creditos_completo?: number
+          descricao?: string | null
+          id?: string
+          nome: string
+          ordem?: number
+          preco_credito_avulso_centavos?: number
+          preco_mensal_centavos?: number
+          preco_unitario_basico_centavos?: number | null
+          preco_unitario_completo_centavos?: number | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          creditos_mensais?: number
+          custo_creditos_basico?: number
+          custo_creditos_completo?: number
+          descricao?: string | null
+          id?: string
+          nome?: string
+          ordem?: number
+          preco_credito_avulso_centavos?: number
+          preco_mensal_centavos?: number
+          preco_unitario_basico_centavos?: number | null
+          preco_unitario_completo_centavos?: number | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      festa_evento_extras: {
+        Row: {
+          created_at: string
+          entregue: boolean
+          evento_id: string
+          extra_id: string | null
+          id: string
+          nome: string
+          preco_unitario_centavos: number
+          quantidade: number
+        }
+        Insert: {
+          created_at?: string
+          entregue?: boolean
+          evento_id: string
+          extra_id?: string | null
+          id?: string
+          nome: string
+          preco_unitario_centavos?: number
+          quantidade?: number
+        }
+        Update: {
+          created_at?: string
+          entregue?: boolean
+          evento_id?: string
+          extra_id?: string | null
+          id?: string
+          nome?: string
+          preco_unitario_centavos?: number
+          quantidade?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "festa_evento_extras_evento_id_fkey"
+            columns: ["evento_id"]
+            isOneToOne: false
+            referencedRelation: "festa_eventos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "festa_evento_extras_extra_id_fkey"
+            columns: ["extra_id"]
+            isOneToOne: false
+            referencedRelation: "festa_catalogo_extras_b2c"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      festa_evento_midias: {
+        Row: {
+          autor: string | null
+          created_at: string
+          curtidas: number
+          duracao_segundos: number | null
+          evento_id: string
+          fixada_demo: boolean
+          id: string
+          moldura_id: string | null
+          path: string
+          sessao_id: string | null
+          status_moderacao: Database["public"]["Enums"]["festa_status_moderacao_enum"]
+          tamanho_bytes: number | null
+          thumb_path: string | null
+          tipo_midia: Database["public"]["Enums"]["festa_tipo_midia_enum"]
+        }
+        Insert: {
+          autor?: string | null
+          created_at?: string
+          curtidas?: number
+          duracao_segundos?: number | null
+          evento_id: string
+          fixada_demo?: boolean
+          id?: string
+          moldura_id?: string | null
+          path: string
+          sessao_id?: string | null
+          status_moderacao?: Database["public"]["Enums"]["festa_status_moderacao_enum"]
+          tamanho_bytes?: number | null
+          thumb_path?: string | null
+          tipo_midia?: Database["public"]["Enums"]["festa_tipo_midia_enum"]
+        }
+        Update: {
+          autor?: string | null
+          created_at?: string
+          curtidas?: number
+          duracao_segundos?: number | null
+          evento_id?: string
+          fixada_demo?: boolean
+          id?: string
+          moldura_id?: string | null
+          path?: string
+          sessao_id?: string | null
+          status_moderacao?: Database["public"]["Enums"]["festa_status_moderacao_enum"]
+          tamanho_bytes?: number | null
+          thumb_path?: string | null
+          tipo_midia?: Database["public"]["Enums"]["festa_tipo_midia_enum"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "festa_evento_midias_evento_id_fkey"
+            columns: ["evento_id"]
+            isOneToOne: false
+            referencedRelation: "festa_eventos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "festa_evento_midias_moldura_id_fkey"
+            columns: ["moldura_id"]
+            isOneToOne: false
+            referencedRelation: "festa_evento_molduras"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      festa_evento_molduras: {
+        Row: {
+          arquivo_path: string
+          ativa: boolean
+          created_at: string
+          evento_id: string
+          id: string
+          nome: string
+          ordem: number
+        }
+        Insert: {
+          arquivo_path: string
+          ativa?: boolean
+          created_at?: string
+          evento_id: string
+          id?: string
+          nome: string
+          ordem?: number
+        }
+        Update: {
+          arquivo_path?: string
+          ativa?: boolean
+          created_at?: string
+          evento_id?: string
+          id?: string
+          nome?: string
+          ordem?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "festa_evento_molduras_evento_id_fkey"
+            columns: ["evento_id"]
+            isOneToOne: false
+            referencedRelation: "festa_eventos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      festa_eventos: {
+        Row: {
+          anfitriao_id: string | null
+          ativo: boolean
+          boas_vindas: string | null
+          capa_url: string | null
+          cor_primaria: string
+          cor_secundaria: string
+          created_at: string
+          data_evento: string | null
+          desconto_centavos: number
+          expira_em: string | null
+          galeria_publica: boolean
+          id: string
+          idade_aniversariante: string | null
+          inclui_telao: boolean
+          is_demo: boolean
+          limite_molduras: number
+          metodo_pagamento: Database["public"]["Enums"]["festa_metodo_pagamento_enum"]
+          moderacao_previa: boolean
+          nome_aniversariante: string | null
+          observacoes_internas: string | null
+          pacote: Database["public"]["Enums"]["festa_pacote_tipo_enum"]
+          parceiro_id: string | null
+          permite_envio_midias: boolean
+          permite_video: boolean
+          pix_copia_cola: string | null
+          pix_txid: string | null
+          qr_code_pdf_url: string | null
+          slug: string
+          status_pedido: Database["public"]["Enums"]["festa_status_pedido_enum"]
+          subtitulo: string | null
+          tema_id: string | null
+          tempo_slideshow_segundos: number
+          titulo: string
+          token_gestao: string
+          updated_at: string
+          valor_extras_centavos: number
+          valor_pacote_centavos: number
+          valor_pago_centavos: number
+          valor_sinal_centavos: number
+          valor_total_centavos: number
+        }
+        Insert: {
+          anfitriao_id?: string | null
+          ativo?: boolean
+          boas_vindas?: string | null
+          capa_url?: string | null
+          cor_primaria?: string
+          cor_secundaria?: string
+          created_at?: string
+          data_evento?: string | null
+          desconto_centavos?: number
+          expira_em?: string | null
+          galeria_publica?: boolean
+          id?: string
+          idade_aniversariante?: string | null
+          inclui_telao?: boolean
+          is_demo?: boolean
+          limite_molduras?: number
+          metodo_pagamento?: Database["public"]["Enums"]["festa_metodo_pagamento_enum"]
+          moderacao_previa?: boolean
+          nome_aniversariante?: string | null
+          observacoes_internas?: string | null
+          pacote?: Database["public"]["Enums"]["festa_pacote_tipo_enum"]
+          parceiro_id?: string | null
+          permite_envio_midias?: boolean
+          permite_video?: boolean
+          pix_copia_cola?: string | null
+          pix_txid?: string | null
+          qr_code_pdf_url?: string | null
+          slug: string
+          status_pedido?: Database["public"]["Enums"]["festa_status_pedido_enum"]
+          subtitulo?: string | null
+          tema_id?: string | null
+          tempo_slideshow_segundos?: number
+          titulo: string
+          token_gestao?: string
+          updated_at?: string
+          valor_extras_centavos?: number
+          valor_pacote_centavos?: number
+          valor_pago_centavos?: number
+          valor_sinal_centavos?: number
+          valor_total_centavos?: number
+        }
+        Update: {
+          anfitriao_id?: string | null
+          ativo?: boolean
+          boas_vindas?: string | null
+          capa_url?: string | null
+          cor_primaria?: string
+          cor_secundaria?: string
+          created_at?: string
+          data_evento?: string | null
+          desconto_centavos?: number
+          expira_em?: string | null
+          galeria_publica?: boolean
+          id?: string
+          idade_aniversariante?: string | null
+          inclui_telao?: boolean
+          is_demo?: boolean
+          limite_molduras?: number
+          metodo_pagamento?: Database["public"]["Enums"]["festa_metodo_pagamento_enum"]
+          moderacao_previa?: boolean
+          nome_aniversariante?: string | null
+          observacoes_internas?: string | null
+          pacote?: Database["public"]["Enums"]["festa_pacote_tipo_enum"]
+          parceiro_id?: string | null
+          permite_envio_midias?: boolean
+          permite_video?: boolean
+          pix_copia_cola?: string | null
+          pix_txid?: string | null
+          qr_code_pdf_url?: string | null
+          slug?: string
+          status_pedido?: Database["public"]["Enums"]["festa_status_pedido_enum"]
+          subtitulo?: string | null
+          tema_id?: string | null
+          tempo_slideshow_segundos?: number
+          titulo?: string
+          token_gestao?: string
+          updated_at?: string
+          valor_extras_centavos?: number
+          valor_pacote_centavos?: number
+          valor_pago_centavos?: number
+          valor_sinal_centavos?: number
+          valor_total_centavos?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "festa_eventos_anfitriao_id_fkey"
+            columns: ["anfitriao_id"]
+            isOneToOne: false
+            referencedRelation: "festa_usuarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "festa_eventos_parceiro_id_fkey"
+            columns: ["parceiro_id"]
+            isOneToOne: false
+            referencedRelation: "festa_parceiros_b2b"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "festa_eventos_tema_id_fkey"
+            columns: ["tema_id"]
+            isOneToOne: false
+            referencedRelation: "festa_temas_catalogo"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      festa_parceiros_b2b: {
+        Row: {
+          ativo: boolean
+          cor_marca: string | null
+          created_at: string
+          documento: string | null
+          email: string | null
+          id: string
+          logo_url: string | null
+          nome_empresa: string
+          plano_b2b_id: string | null
+          saldo_creditos: number
+          status_assinatura: Database["public"]["Enums"]["festa_status_assinatura_b2b_enum"]
+          telefone: string | null
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          cor_marca?: string | null
+          created_at?: string
+          documento?: string | null
+          email?: string | null
+          id?: string
+          logo_url?: string | null
+          nome_empresa: string
+          plano_b2b_id?: string | null
+          saldo_creditos?: number
+          status_assinatura?: Database["public"]["Enums"]["festa_status_assinatura_b2b_enum"]
+          telefone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          cor_marca?: string | null
+          created_at?: string
+          documento?: string | null
+          email?: string | null
+          id?: string
+          logo_url?: string | null
+          nome_empresa?: string
+          plano_b2b_id?: string | null
+          saldo_creditos?: number
+          status_assinatura?: Database["public"]["Enums"]["festa_status_assinatura_b2b_enum"]
+          telefone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "festa_parceiros_b2b_plano_b2b_id_fkey"
+            columns: ["plano_b2b_id"]
+            isOneToOne: false
+            referencedRelation: "festa_catalogo_planos_b2b"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      festa_temas_catalogo: {
+        Row: {
+          ativo: boolean
+          categoria: Database["public"]["Enums"]["festa_categoria_tema_enum"]
+          cor_primaria_padrao: string
+          cor_secundaria_padrao: string
+          created_at: string
+          id: string
+          moldura_preview_url: string | null
+          nome: string
+          ordem: number
+          parceiro_proprietario_id: string | null
+          publico: boolean
+          slug: string
+          thumb_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          categoria?: Database["public"]["Enums"]["festa_categoria_tema_enum"]
+          cor_primaria_padrao?: string
+          cor_secundaria_padrao?: string
+          created_at?: string
+          id?: string
+          moldura_preview_url?: string | null
+          nome: string
+          ordem?: number
+          parceiro_proprietario_id?: string | null
+          publico?: boolean
+          slug: string
+          thumb_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          categoria?: Database["public"]["Enums"]["festa_categoria_tema_enum"]
+          cor_primaria_padrao?: string
+          cor_secundaria_padrao?: string
+          created_at?: string
+          id?: string
+          moldura_preview_url?: string | null
+          nome?: string
+          ordem?: number
+          parceiro_proprietario_id?: string | null
+          publico?: boolean
+          slug?: string
+          thumb_url?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "festa_temas_catalogo_parceiro_proprietario_id_fkey"
+            columns: ["parceiro_proprietario_id"]
+            isOneToOne: false
+            referencedRelation: "festa_parceiros_b2b"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      festa_transacoes_creditos_b2b: {
+        Row: {
+          created_at: string
+          evento_id: string | null
+          id: string
+          observacao: string | null
+          parceiro_id: string
+          quantidade: number
+          tipo: Database["public"]["Enums"]["festa_tipo_transacao_credito_enum"]
+        }
+        Insert: {
+          created_at?: string
+          evento_id?: string | null
+          id?: string
+          observacao?: string | null
+          parceiro_id: string
+          quantidade: number
+          tipo: Database["public"]["Enums"]["festa_tipo_transacao_credito_enum"]
+        }
+        Update: {
+          created_at?: string
+          evento_id?: string | null
+          id?: string
+          observacao?: string | null
+          parceiro_id?: string
+          quantidade?: number
+          tipo?: Database["public"]["Enums"]["festa_tipo_transacao_credito_enum"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "festa_transacoes_creditos_b2b_evento_id_fkey"
+            columns: ["evento_id"]
+            isOneToOne: false
+            referencedRelation: "festa_eventos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "festa_transacoes_creditos_b2b_parceiro_id_fkey"
+            columns: ["parceiro_id"]
+            isOneToOne: false
+            referencedRelation: "festa_parceiros_b2b"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      festa_usuarios: {
+        Row: {
+          ativo: boolean
+          auth_user_id: string | null
+          cpf: string | null
+          created_at: string
+          email: string | null
+          id: string
+          nome: string
+          parceiro_id: string | null
+          telefone: string | null
+          tipo_perfil: Database["public"]["Enums"]["festa_tipo_perfil_enum"]
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          auth_user_id?: string | null
+          cpf?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          nome: string
+          parceiro_id?: string | null
+          telefone?: string | null
+          tipo_perfil?: Database["public"]["Enums"]["festa_tipo_perfil_enum"]
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          auth_user_id?: string | null
+          cpf?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          nome?: string
+          parceiro_id?: string | null
+          telefone?: string | null
+          tipo_perfil?: Database["public"]["Enums"]["festa_tipo_perfil_enum"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "festa_usuarios_parceiro_id_fkey"
+            columns: ["parceiro_id"]
+            isOneToOne: false
+            referencedRelation: "festa_parceiros_b2b"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fila_notificacoes: {
+        Row: {
+          canal: string
+          created_at: string | null
+          destinatario: string
+          erro_mensagem: string | null
+          evento: string
+          id: string
+          max_tentativas: number
+          passageiro_id: string | null
+          payload: Json
+          provider_message_id: string | null
+          proxima_tentativa_em: string
+          status: string
+          tentativas: number
+          updated_at: string | null
+          usuario_id: string | null
+        }
+        Insert: {
+          canal: string
+          created_at?: string | null
+          destinatario: string
+          erro_mensagem?: string | null
+          evento: string
+          id?: string
+          max_tentativas?: number
+          passageiro_id?: string | null
+          payload: Json
+          provider_message_id?: string | null
+          proxima_tentativa_em?: string
+          status?: string
+          tentativas?: number
+          updated_at?: string | null
+          usuario_id?: string | null
+        }
+        Update: {
+          canal?: string
+          created_at?: string | null
+          destinatario?: string
+          erro_mensagem?: string | null
+          evento?: string
+          id?: string
+          max_tentativas?: number
+          passageiro_id?: string | null
+          payload?: Json
+          provider_message_id?: string | null
+          proxima_tentativa_em?: string
+          status?: string
+          tentativas?: number
+          updated_at?: string | null
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fila_notificacoes_passageiro_id_fkey"
+            columns: ["passageiro_id"]
+            isOneToOne: false
+            referencedRelation: "passageiros"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fila_notificacoes_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fretamento_pagamentos: {
+        Row: {
+          created_at: string
+          data_pagamento: string
+          descricao: string | null
+          fretamento_id: string
+          id: string
+          tipo_pagamento: Database["public"]["Enums"]["tipo_pagamento_enum"]
+          valor: number
+        }
+        Insert: {
+          created_at?: string
+          data_pagamento?: string
+          descricao?: string | null
+          fretamento_id: string
+          id?: string
+          tipo_pagamento?: Database["public"]["Enums"]["tipo_pagamento_enum"]
+          valor: number
+        }
+        Update: {
+          created_at?: string
+          data_pagamento?: string
+          descricao?: string | null
+          fretamento_id?: string
+          id?: string
+          tipo_pagamento?: Database["public"]["Enums"]["tipo_pagamento_enum"]
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fretamento_pagamentos_fretamento_id_fkey"
+            columns: ["fretamento_id"]
+            isOneToOne: false
+            referencedRelation: "fretamentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fretamento_participantes: {
+        Row: {
+          created_at: string
+          data_pagamento: string | null
+          endereco: string | null
+          fretamento_id: string
+          id: string
+          is_proprio_responsavel: boolean
+          nome: string
+          observacoes: string | null
+          passageiro_id: string | null
+          responsavel_nome: string | null
+          status_pagamento: Database["public"]["Enums"]["participante_pagamento_status_enum"]
+          telefone: string | null
+          tipo_pagamento:
+            | Database["public"]["Enums"]["tipo_pagamento_enum"]
+            | null
+          updated_at: string
+          valor: number
+          valor_pago: number
+        }
+        Insert: {
+          created_at?: string
+          data_pagamento?: string | null
+          endereco?: string | null
+          fretamento_id: string
+          id?: string
+          is_proprio_responsavel?: boolean
+          nome: string
+          observacoes?: string | null
+          passageiro_id?: string | null
+          responsavel_nome?: string | null
+          status_pagamento?: Database["public"]["Enums"]["participante_pagamento_status_enum"]
+          telefone?: string | null
+          tipo_pagamento?:
+            | Database["public"]["Enums"]["tipo_pagamento_enum"]
+            | null
+          updated_at?: string
+          valor?: number
+          valor_pago?: number
+        }
+        Update: {
+          created_at?: string
+          data_pagamento?: string | null
+          endereco?: string | null
+          fretamento_id?: string
+          id?: string
+          is_proprio_responsavel?: boolean
+          nome?: string
+          observacoes?: string | null
+          passageiro_id?: string | null
+          responsavel_nome?: string | null
+          status_pagamento?: Database["public"]["Enums"]["participante_pagamento_status_enum"]
+          telefone?: string | null
+          tipo_pagamento?:
+            | Database["public"]["Enums"]["tipo_pagamento_enum"]
+            | null
+          updated_at?: string
+          valor?: number
+          valor_pago?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fretamento_participantes_fretamento_id_fkey"
+            columns: ["fretamento_id"]
+            isOneToOne: false
+            referencedRelation: "fretamentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fretamento_participantes_passageiro_id_fkey"
+            columns: ["passageiro_id"]
+            isOneToOne: false
+            referencedRelation: "passageiros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fretamento_veiculos: {
+        Row: {
+          created_at: string
+          fretamento_id: string
+          id: string
+          vagas_capacidade: number | null
+          veiculo_id: string
+        }
+        Insert: {
+          created_at?: string
+          fretamento_id: string
+          id?: string
+          vagas_capacidade?: number | null
+          veiculo_id: string
+        }
+        Update: {
+          created_at?: string
+          fretamento_id?: string
+          id?: string
+          vagas_capacidade?: number | null
+          veiculo_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fretamento_veiculos_fretamento_id_fkey"
+            columns: ["fretamento_id"]
+            isOneToOne: false
+            referencedRelation: "fretamentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fretamento_veiculos_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fretamentos: {
+        Row: {
+          chave_pix: string | null
+          contratante_nome: string | null
+          contratante_telefone: string | null
+          created_at: string
+          data_fim: string | null
+          data_inicio: string
+          destino: string
+          id: string
+          observacoes: string | null
+          origem: string | null
+          slug_publico: string | null
+          status: Database["public"]["Enums"]["fretamento_status_enum"]
+          status_pagamento: Database["public"]["Enums"]["fretamento_pagamento_status_enum"]
+          tipo: Database["public"]["Enums"]["fretamento_tipo_enum"]
+          titulo: string
+          updated_at: string
+          usuario_id: string
+          vagas_totais: number | null
+          valor_por_pessoa: number | null
+          valor_total: number
+        }
+        Insert: {
+          chave_pix?: string | null
+          contratante_nome?: string | null
+          contratante_telefone?: string | null
+          created_at?: string
+          data_fim?: string | null
+          data_inicio: string
+          destino: string
+          id?: string
+          observacoes?: string | null
+          origem?: string | null
+          slug_publico?: string | null
+          status?: Database["public"]["Enums"]["fretamento_status_enum"]
+          status_pagamento?: Database["public"]["Enums"]["fretamento_pagamento_status_enum"]
+          tipo?: Database["public"]["Enums"]["fretamento_tipo_enum"]
+          titulo: string
+          updated_at?: string
+          usuario_id: string
+          vagas_totais?: number | null
+          valor_por_pessoa?: number | null
+          valor_total?: number
+        }
+        Update: {
+          chave_pix?: string | null
+          contratante_nome?: string | null
+          contratante_telefone?: string | null
+          created_at?: string
+          data_fim?: string | null
+          data_inicio?: string
+          destino?: string
+          id?: string
+          observacoes?: string | null
+          origem?: string | null
+          slug_publico?: string | null
+          status?: Database["public"]["Enums"]["fretamento_status_enum"]
+          status_pagamento?: Database["public"]["Enums"]["fretamento_pagamento_status_enum"]
+          tipo?: Database["public"]["Enums"]["fretamento_tipo_enum"]
+          titulo?: string
+          updated_at?: string
+          usuario_id?: string
+          vagas_totais?: number | null
+          valor_por_pessoa?: number | null
+          valor_total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fretamentos_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gasto_categorias: {
+        Row: {
+          cor: string
+          created_at: string | null
+          icone: string
+          id: string
+          nome: string
+          slug: string
+          usuario_id: string | null
+        }
+        Insert: {
+          cor?: string
+          created_at?: string | null
+          icone?: string
+          id?: string
+          nome: string
+          slug: string
+          usuario_id?: string | null
+        }
+        Update: {
+          cor?: string
+          created_at?: string | null
+          icone?: string
+          id?: string
+          nome?: string
+          slug?: string
+          usuario_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gasto_categorias_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gastos: {
+        Row: {
+          categoria: string
+          created_at: string | null
+          data: string
+          descricao: string | null
+          fretamento_id: string | null
+          id: string
+          numero_parcela: number | null
+          parcelamento_id: string | null
+          total_parcelas: number | null
+          usuario_id: string | null
+          valor: number
+          veiculo_id: string | null
+        }
+        Insert: {
+          categoria: string
+          created_at?: string | null
+          data: string
+          descricao?: string | null
+          fretamento_id?: string | null
+          id?: string
+          numero_parcela?: number | null
+          parcelamento_id?: string | null
+          total_parcelas?: number | null
+          usuario_id?: string | null
+          valor: number
+          veiculo_id?: string | null
+        }
+        Update: {
+          categoria?: string
+          created_at?: string | null
+          data?: string
+          descricao?: string | null
+          fretamento_id?: string | null
+          id?: string
+          numero_parcela?: number | null
+          parcelamento_id?: string | null
+          total_parcelas?: number | null
+          usuario_id?: string | null
+          valor?: number
+          veiculo_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gastos_fretamento_id_fkey"
+            columns: ["fretamento_id"]
+            isOneToOne: false
+            referencedRelation: "fretamentos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gastos_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gastos_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      historico_atividades: {
+        Row: {
+          acao: string
+          created_at: string
+          descricao: string
+          entidade_id: string
+          entidade_tipo: string
+          id: string
+          ip_address: string | null
+          meta: Json | null
+          usuario_id: string
+        }
+        Insert: {
+          acao: string
+          created_at?: string
+          descricao: string
+          entidade_id: string
+          entidade_tipo: string
+          id?: string
+          ip_address?: string | null
+          meta?: Json | null
+          usuario_id: string
+        }
+        Update: {
+          acao?: string
+          created_at?: string
+          descricao?: string
+          entidade_id?: string
+          entidade_tipo?: string
+          id?: string
+          ip_address?: string | null
+          meta?: Json | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "historico_atividades_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      indicacoes: {
+        Row: {
+          created_at: string | null
+          fatura_origem_id: string | null
+          id: string
+          indicado_id: string | null
+          indicador_id: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          fatura_origem_id?: string | null
+          id?: string
+          indicado_id?: string | null
+          indicador_id: string
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          fatura_origem_id?: string | null
+          id?: string
+          indicado_id?: string | null
+          indicador_id?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "indicacoes_indicado_id_fkey"
+            columns: ["indicado_id"]
+            isOneToOne: true
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "indicacoes_indicador_id_fkey"
+            columns: ["indicador_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      metodos_pagamento: {
+        Row: {
+          brand: string | null
+          created_at: string
+          expire_month: string
+          expire_year: string
+          holder_document: string | null
+          holder_name: string | null
+          id: string
+          is_default: boolean | null
+          last_4_digits: string
+          payment_token: string
+          updated_at: string | null
+          usuario_id: string
+        }
+        Insert: {
+          brand?: string | null
+          created_at?: string
+          expire_month: string
+          expire_year: string
+          holder_document?: string | null
+          holder_name?: string | null
+          id?: string
+          is_default?: boolean | null
+          last_4_digits: string
+          payment_token: string
+          updated_at?: string | null
+          usuario_id: string
+        }
+        Update: {
+          brand?: string | null
+          created_at?: string
+          expire_month?: string
+          expire_year?: string
+          holder_document?: string | null
+          holder_name?: string | null
+          id?: string
+          is_default?: boolean | null
+          last_4_digits?: string
+          payment_token?: string
+          updated_at?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "metodos_pagamento_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      motorista_configuracoes_financeiras: {
+        Row: {
+          chave_pix_repasse: string | null
+          cobrar_juros_atraso: boolean
+          cobrar_multa_atraso: boolean
+          created_at: string
+          dias_carencia_atraso: number
+          dias_validade_apos_vencimento: number
+          enviar_recibo_automatico: boolean
+          id: string
+          juros_atraso_tipo: string | null
+          juros_atraso_valor: number | null
+          modo_cobranca: Database["public"]["Enums"]["modo_cobranca_enum"]
+          multa_atraso_tipo: string | null
+          multa_atraso_valor: number | null
+          provedor_ativo:
+            | Database["public"]["Enums"]["provedor_pagamento_enum"]
+            | null
+          provedor_config: Json | null
+          taxa_personalizada: number | null
+          tipo_chave_pix: string | null
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          chave_pix_repasse?: string | null
+          cobrar_juros_atraso?: boolean
+          cobrar_multa_atraso?: boolean
+          created_at?: string
+          dias_carencia_atraso?: number
+          dias_validade_apos_vencimento?: number
+          enviar_recibo_automatico?: boolean
+          id?: string
+          juros_atraso_tipo?: string | null
+          juros_atraso_valor?: number | null
+          modo_cobranca?: Database["public"]["Enums"]["modo_cobranca_enum"]
+          multa_atraso_tipo?: string | null
+          multa_atraso_valor?: number | null
+          provedor_ativo?:
+            | Database["public"]["Enums"]["provedor_pagamento_enum"]
+            | null
+          provedor_config?: Json | null
+          taxa_personalizada?: number | null
+          tipo_chave_pix?: string | null
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          chave_pix_repasse?: string | null
+          cobrar_juros_atraso?: boolean
+          cobrar_multa_atraso?: boolean
+          created_at?: string
+          dias_carencia_atraso?: number
+          dias_validade_apos_vencimento?: number
+          enviar_recibo_automatico?: boolean
+          id?: string
+          juros_atraso_tipo?: string | null
+          juros_atraso_valor?: number | null
+          modo_cobranca?: Database["public"]["Enums"]["modo_cobranca_enum"]
+          multa_atraso_tipo?: string | null
+          multa_atraso_valor?: number | null
+          provedor_ativo?:
+            | Database["public"]["Enums"]["provedor_pagamento_enum"]
+            | null
+          provedor_config?: Json | null
+          taxa_personalizada?: number | null
+          tipo_chave_pix?: string | null
+          updated_at?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "motorista_configuracoes_financeiras_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: true
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      motorista_integracoes_cobranca: {
+        Row: {
+          ambiente: string
+          ativo: boolean
+          configuracoes: Json
+          created_at: string
+          id: string
+          provedor: Database["public"]["Enums"]["provedor_pagamento_enum"]
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          ambiente?: string
+          ativo?: boolean
+          configuracoes?: Json
+          created_at?: string
+          id?: string
+          provedor: Database["public"]["Enums"]["provedor_pagamento_enum"]
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          ambiente?: string
+          ativo?: boolean
+          configuracoes?: Json
+          created_at?: string
+          id?: string
+          provedor?: Database["public"]["Enums"]["provedor_pagamento_enum"]
+          updated_at?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "motorista_integracoes_cobranca_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      passageiro_ausencias: {
+        Row: {
+          created_at: string
+          data_ausencia: string
+          id: string
+          motivo: string | null
+          passageiro_id: string
+          registrado_por: string | null
+          sentido: string | null
+          turno: string
+        }
+        Insert: {
+          created_at?: string
+          data_ausencia: string
+          id?: string
+          motivo?: string | null
+          passageiro_id: string
+          registrado_por?: string | null
+          sentido?: string | null
+          turno: string
+        }
+        Update: {
+          created_at?: string
+          data_ausencia?: string
+          id?: string
+          motivo?: string | null
+          passageiro_id?: string
+          registrado_por?: string | null
+          sentido?: string | null
+          turno?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "passageiro_ausencias_passageiro_id_fkey"
+            columns: ["passageiro_id"]
+            isOneToOne: false
+            referencedRelation: "passageiros"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "passageiro_ausencias_registrado_por_fkey"
+            columns: ["registrado_por"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      passageiro_matriculas: {
+        Row: {
+          ano_letivo: number
+          ativo: boolean
+          created_at: string
+          data_fim_cobranca: string | null
+          data_fim_transporte: string | null
+          data_inicio_cobranca: string | null
+          data_inicio_transporte: string | null
+          dia_vencimento: number | null
+          escola_id: string
+          horario_entrada: string | null
+          horario_saida: string | null
+          id: string
+          isento: boolean
+          modalidade: Database["public"]["Enums"]["modalidade_enum"] | null
+          modo_cobranca:
+            | Database["public"]["Enums"]["modo_cobranca_enum"]
+            | null
+          nome_professor: string | null
+          passageiro_id: string
+          periodo: string | null
+          sala: string | null
+          turma: string | null
+          updated_at: string
+          usuario_id: string
+          valor_cobranca: number | null
+          veiculo_id: string
+        }
+        Insert: {
+          ano_letivo?: number
+          ativo?: boolean
+          created_at?: string
+          data_fim_cobranca?: string | null
+          data_fim_transporte?: string | null
+          data_inicio_cobranca?: string | null
+          data_inicio_transporte?: string | null
+          dia_vencimento?: number | null
+          escola_id: string
+          horario_entrada?: string | null
+          horario_saida?: string | null
+          id?: string
+          isento?: boolean
+          modalidade?: Database["public"]["Enums"]["modalidade_enum"] | null
+          modo_cobranca?:
+            | Database["public"]["Enums"]["modo_cobranca_enum"]
+            | null
+          nome_professor?: string | null
+          passageiro_id: string
+          periodo?: string | null
+          sala?: string | null
+          turma?: string | null
+          updated_at?: string
+          usuario_id: string
+          valor_cobranca?: number | null
+          veiculo_id: string
+        }
+        Update: {
+          ano_letivo?: number
+          ativo?: boolean
+          created_at?: string
+          data_fim_cobranca?: string | null
+          data_fim_transporte?: string | null
+          data_inicio_cobranca?: string | null
+          data_inicio_transporte?: string | null
+          dia_vencimento?: number | null
+          escola_id?: string
+          horario_entrada?: string | null
+          horario_saida?: string | null
+          id?: string
+          isento?: boolean
+          modalidade?: Database["public"]["Enums"]["modalidade_enum"] | null
+          modo_cobranca?:
+            | Database["public"]["Enums"]["modo_cobranca_enum"]
+            | null
+          nome_professor?: string | null
+          passageiro_id?: string
+          periodo?: string | null
+          sala?: string | null
+          turma?: string | null
+          updated_at?: string
+          usuario_id?: string
+          valor_cobranca?: number | null
+          veiculo_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "passageiro_matriculas_escola_id_fkey"
+            columns: ["escola_id"]
+            isOneToOne: false
+            referencedRelation: "escolas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "passageiro_matriculas_passageiro_id_fkey"
+            columns: ["passageiro_id"]
+            isOneToOne: false
+            referencedRelation: "passageiros"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "passageiro_matriculas_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "passageiro_matriculas_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      passageiro_renovacoes: {
+        Row: {
+          ano_destino: number
+          ano_origem: number
+          confirmado_em: string | null
+          created_at: string
+          dados_ano_origem: Json | null
+          id: string
+          ip_confirmacao: string | null
+          justificativa_recusa: string | null
+          motivo_recusa: string | null
+          notificacao_enviada_em: string | null
+          nova_data_fim_cobranca: string | null
+          nova_data_fim_transporte: string | null
+          nova_data_inicio_cobranca: string | null
+          nova_data_inicio_transporte: string | null
+          nova_escola_id: string | null
+          nova_modalidade: Database["public"]["Enums"]["modalidade_enum"] | null
+          nova_sala: string | null
+          nova_turma: string | null
+          novo_dia_vencimento: number | null
+          novo_isento: boolean
+          novo_nome_professor: string | null
+          novo_periodo: string | null
+          novo_valor_cobranca: number | null
+          novo_veiculo_id: string | null
+          observacoes_pais: string | null
+          passageiro_id: string
+          quem_recusou: string | null
+          recusado_em: string | null
+          status: Database["public"]["Enums"]["renovacao_status_enum"]
+          token_publico: string | null
+          updated_at: string
+          user_agent_confirmacao: string | null
+          usuario_id: string
+        }
+        Insert: {
+          ano_destino?: number
+          ano_origem?: number
+          confirmado_em?: string | null
+          created_at?: string
+          dados_ano_origem?: Json | null
+          id?: string
+          ip_confirmacao?: string | null
+          justificativa_recusa?: string | null
+          motivo_recusa?: string | null
+          notificacao_enviada_em?: string | null
+          nova_data_fim_cobranca?: string | null
+          nova_data_fim_transporte?: string | null
+          nova_data_inicio_cobranca?: string | null
+          nova_data_inicio_transporte?: string | null
+          nova_escola_id?: string | null
+          nova_modalidade?:
+            | Database["public"]["Enums"]["modalidade_enum"]
+            | null
+          nova_sala?: string | null
+          nova_turma?: string | null
+          novo_dia_vencimento?: number | null
+          novo_isento?: boolean
+          novo_nome_professor?: string | null
+          novo_periodo?: string | null
+          novo_valor_cobranca?: number | null
+          novo_veiculo_id?: string | null
+          observacoes_pais?: string | null
+          passageiro_id: string
+          quem_recusou?: string | null
+          recusado_em?: string | null
+          status?: Database["public"]["Enums"]["renovacao_status_enum"]
+          token_publico?: string | null
+          updated_at?: string
+          user_agent_confirmacao?: string | null
+          usuario_id: string
+        }
+        Update: {
+          ano_destino?: number
+          ano_origem?: number
+          confirmado_em?: string | null
+          created_at?: string
+          dados_ano_origem?: Json | null
+          id?: string
+          ip_confirmacao?: string | null
+          justificativa_recusa?: string | null
+          motivo_recusa?: string | null
+          notificacao_enviada_em?: string | null
+          nova_data_fim_cobranca?: string | null
+          nova_data_fim_transporte?: string | null
+          nova_data_inicio_cobranca?: string | null
+          nova_data_inicio_transporte?: string | null
+          nova_escola_id?: string | null
+          nova_modalidade?:
+            | Database["public"]["Enums"]["modalidade_enum"]
+            | null
+          nova_sala?: string | null
+          nova_turma?: string | null
+          novo_dia_vencimento?: number | null
+          novo_isento?: boolean
+          novo_nome_professor?: string | null
+          novo_periodo?: string | null
+          novo_valor_cobranca?: number | null
+          novo_veiculo_id?: string | null
+          observacoes_pais?: string | null
+          passageiro_id?: string
+          quem_recusou?: string | null
+          recusado_em?: string | null
+          status?: Database["public"]["Enums"]["renovacao_status_enum"]
+          token_publico?: string | null
+          updated_at?: string
+          user_agent_confirmacao?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "passageiro_renovacoes_nova_escola_id_fkey"
+            columns: ["nova_escola_id"]
+            isOneToOne: false
+            referencedRelation: "escolas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "passageiro_renovacoes_novo_veiculo_id_fkey"
+            columns: ["novo_veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "passageiro_renovacoes_passageiro_id_fkey"
+            columns: ["passageiro_id"]
+            isOneToOne: false
+            referencedRelation: "passageiros"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "passageiro_renovacoes_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      passageiro_responsaveis: {
+        Row: {
+          created_at: string | null
+          id: string
+          notificacoes_rota_habilitadas: boolean
+          parentesco: string | null
+          passageiro_id: string
+          responsavel_id: string
+          tipo: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notificacoes_rota_habilitadas?: boolean
+          parentesco?: string | null
+          passageiro_id: string
+          responsavel_id: string
+          tipo?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notificacoes_rota_habilitadas?: boolean
+          parentesco?: string | null
+          passageiro_id?: string
+          responsavel_id?: string
+          tipo?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "passageiro_responsaveis_passageiro_id_fkey"
+            columns: ["passageiro_id"]
+            isOneToOne: false
+            referencedRelation: "passageiros"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "passageiro_responsaveis_responsavel_id_fkey"
+            columns: ["responsavel_id"]
+            isOneToOne: false
+            referencedRelation: "responsaveis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      passageiros: {
+        Row: {
+          ano_letivo: number
+          ativo: boolean
+          chave_pix: string | null
+          created_at: string
+          data_fim_cobranca: string | null
+          data_fim_transporte: string | null
+          data_inicio_cobranca: string | null
+          data_inicio_transporte: string | null
+          data_nascimento: string | null
+          dia_vencimento: number | null
+          enviar_notificacoes: boolean
+          escola_id: string
+          genero: Database["public"]["Enums"]["genero_enum"] | null
+          horario_entrada: string | null
+          horario_saida: string | null
+          id: string
+          isento: boolean
+          modalidade: Database["public"]["Enums"]["modalidade_enum"] | null
+          modo_cobranca:
+            | Database["public"]["Enums"]["modo_cobranca_enum"]
+            | null
+          nome: string
+          nome_professor: string | null
+          observacoes: string | null
+          periodo: string | null
+          sala: string | null
+          tipo_chave_pix: string | null
+          turma: string | null
+          updated_at: string
+          usuario_id: string
+          valor_cobranca: number | null
+          veiculo_id: string
+        }
+        Insert: {
+          ano_letivo?: number
+          ativo?: boolean
+          chave_pix?: string | null
+          created_at?: string
+          data_fim_cobranca?: string | null
+          data_fim_transporte?: string | null
+          data_inicio_cobranca?: string | null
+          data_inicio_transporte?: string | null
+          data_nascimento?: string | null
+          dia_vencimento?: number | null
+          enviar_notificacoes?: boolean
+          escola_id: string
+          genero?: Database["public"]["Enums"]["genero_enum"] | null
+          horario_entrada?: string | null
+          horario_saida?: string | null
+          id?: string
+          isento?: boolean
+          modalidade?: Database["public"]["Enums"]["modalidade_enum"] | null
+          modo_cobranca?:
+            | Database["public"]["Enums"]["modo_cobranca_enum"]
+            | null
+          nome: string
+          nome_professor?: string | null
+          observacoes?: string | null
+          periodo?: string | null
+          sala?: string | null
+          tipo_chave_pix?: string | null
+          turma?: string | null
+          updated_at?: string
+          usuario_id: string
+          valor_cobranca?: number | null
+          veiculo_id: string
+        }
+        Update: {
+          ano_letivo?: number
+          ativo?: boolean
+          chave_pix?: string | null
+          created_at?: string
+          data_fim_cobranca?: string | null
+          data_fim_transporte?: string | null
+          data_inicio_cobranca?: string | null
+          data_inicio_transporte?: string | null
+          data_nascimento?: string | null
+          dia_vencimento?: number | null
+          enviar_notificacoes?: boolean
+          escola_id?: string
+          genero?: Database["public"]["Enums"]["genero_enum"] | null
+          horario_entrada?: string | null
+          horario_saida?: string | null
+          id?: string
+          isento?: boolean
+          modalidade?: Database["public"]["Enums"]["modalidade_enum"] | null
+          modo_cobranca?:
+            | Database["public"]["Enums"]["modo_cobranca_enum"]
+            | null
+          nome?: string
+          nome_professor?: string | null
+          observacoes?: string | null
+          periodo?: string | null
+          sala?: string | null
+          tipo_chave_pix?: string | null
+          turma?: string | null
+          updated_at?: string
+          usuario_id?: string
+          valor_cobranca?: number | null
+          veiculo_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "passageiros_escola_id_fkey"
+            columns: ["escola_id"]
+            isOneToOne: false
+            referencedRelation: "escolas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "passageiros_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "passageiros_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      planos: {
+        Row: {
+          ativo: boolean | null
+          created_at: string | null
+          id: string
+          identificador: string
+          nome: string
+          updated_at: string | null
+          valor: number
+          valor_promocional: number | null
+        }
+        Insert: {
+          ativo?: boolean | null
+          created_at?: string | null
+          id?: string
+          identificador: string
+          nome: string
+          updated_at?: string | null
+          valor: number
+          valor_promocional?: number | null
+        }
+        Update: {
+          ativo?: boolean | null
+          created_at?: string | null
+          id?: string
+          identificador?: string
+          nome?: string
+          updated_at?: string | null
+          valor?: number
+          valor_promocional?: number | null
+        }
+        Relationships: []
+      }
+      pre_passageiros: {
+        Row: {
+          ano_letivo: number
+          bairro: string | null
+          cep: string | null
+          cidade: string | null
+          complemento: string | null
+          cpf_responsavel: string | null
+          created_at: string
+          data_fim_transporte: string | null
+          data_inicio_transporte: string | null
+          data_nascimento: string | null
+          dia_vencimento: number | null
+          dispositivo_cadastro: string | null
+          email_responsavel: string | null
+          escola_id: string | null
+          estado: string | null
+          genero: Database["public"]["Enums"]["genero_enum"] | null
+          horario_entrada: string | null
+          horario_saida: string | null
+          id: string
+          logradouro: string | null
+          metadados_cadastro: Json | null
+          modalidade: Database["public"]["Enums"]["modalidade_enum"] | null
+          nome: string
+          nome_professor: string | null
+          nome_responsavel: string
+          numero: string | null
+          observacoes: string | null
+          parentesco_responsavel:
+            | Database["public"]["Enums"]["parentesco_enum"]
+            | null
+          periodo: string | null
+          referencia: string | null
+          sala: string | null
+          telefone_responsavel: string
+          turma: string | null
+          updated_at: string
+          usuario_id: string
+          valor_cobranca: number | null
+        }
+        Insert: {
+          ano_letivo?: number
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          complemento?: string | null
+          cpf_responsavel?: string | null
+          created_at?: string
+          data_fim_transporte?: string | null
+          data_inicio_transporte?: string | null
+          data_nascimento?: string | null
+          dia_vencimento?: number | null
+          dispositivo_cadastro?: string | null
+          email_responsavel?: string | null
+          escola_id?: string | null
+          estado?: string | null
+          genero?: Database["public"]["Enums"]["genero_enum"] | null
+          horario_entrada?: string | null
+          horario_saida?: string | null
+          id?: string
+          logradouro?: string | null
+          metadados_cadastro?: Json | null
+          modalidade?: Database["public"]["Enums"]["modalidade_enum"] | null
+          nome: string
+          nome_professor?: string | null
+          nome_responsavel: string
+          numero?: string | null
+          observacoes?: string | null
+          parentesco_responsavel?:
+            | Database["public"]["Enums"]["parentesco_enum"]
+            | null
+          periodo?: string | null
+          referencia?: string | null
+          sala?: string | null
+          telefone_responsavel: string
+          turma?: string | null
+          updated_at?: string
+          usuario_id: string
+          valor_cobranca?: number | null
+        }
+        Update: {
+          ano_letivo?: number
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          complemento?: string | null
+          cpf_responsavel?: string | null
+          created_at?: string
+          data_fim_transporte?: string | null
+          data_inicio_transporte?: string | null
+          data_nascimento?: string | null
+          dia_vencimento?: number | null
+          dispositivo_cadastro?: string | null
+          email_responsavel?: string | null
+          escola_id?: string | null
+          estado?: string | null
+          genero?: Database["public"]["Enums"]["genero_enum"] | null
+          horario_entrada?: string | null
+          horario_saida?: string | null
+          id?: string
+          logradouro?: string | null
+          metadados_cadastro?: Json | null
+          modalidade?: Database["public"]["Enums"]["modalidade_enum"] | null
+          nome?: string
+          nome_professor?: string | null
+          nome_responsavel?: string
+          numero?: string | null
+          observacoes?: string | null
+          parentesco_responsavel?:
+            | Database["public"]["Enums"]["parentesco_enum"]
+            | null
+          periodo?: string | null
+          referencia?: string | null
+          sala?: string | null
+          telefone_responsavel?: string
+          turma?: string | null
+          updated_at?: string
+          usuario_id?: string
+          valor_cobranca?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pre_passageiros_escola_id_fkey"
+            columns: ["escola_id"]
+            isOneToOne: false
+            referencedRelation: "escolas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pre_passageiros_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recibos_anuais: {
+        Row: {
+          ano: number
+          created_at: string
+          id: string
+          motorista_id: string
+          passageiro_id: string
+          quantidade_meses: number
+          recibo_url: string
+          total_pago: number
+          updated_at: string
+        }
+        Insert: {
+          ano: number
+          created_at?: string
+          id?: string
+          motorista_id: string
+          passageiro_id: string
+          quantidade_meses: number
+          recibo_url: string
+          total_pago: number
+          updated_at?: string
+        }
+        Update: {
+          ano?: number
+          created_at?: string
+          id?: string
+          motorista_id?: string
+          passageiro_id?: string
+          quantidade_meses?: number
+          recibo_url?: string
+          total_pago?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recibos_anuais_motorista_id_fkey"
+            columns: ["motorista_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recibos_anuais_passageiro_id_fkey"
+            columns: ["passageiro_id"]
+            isOneToOne: false
+            referencedRelation: "passageiros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recuperacoes_senha: {
+        Row: {
+          codigo: string
+          created_at: string
+          expira_em: string
+          id: string
+          usado: boolean
+          usuario_id: string
+        }
+        Insert: {
+          codigo: string
+          created_at?: string
+          expira_em: string
+          id?: string
+          usado?: boolean
+          usuario_id: string
+        }
+        Update: {
+          codigo?: string
+          created_at?: string
+          expira_em?: string
+          id?: string
+          usado?: boolean
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recuperacoes_senha_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      responsaveis: {
+        Row: {
+          bairro: string | null
+          cep: string | null
+          cidade: string | null
+          complemento: string | null
+          cpf: string | null
+          created_at: string | null
+          email: string | null
+          estado: string | null
+          id: string
+          logradouro: string | null
+          nome: string
+          numero: string | null
+          pin_acesso: string | null
+          referencia: string | null
+          telefone: string
+          updated_at: string | null
+        }
+        Insert: {
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          complemento?: string | null
+          cpf?: string | null
+          created_at?: string | null
+          email?: string | null
+          estado?: string | null
+          id?: string
+          logradouro?: string | null
+          nome: string
+          numero?: string | null
+          pin_acesso?: string | null
+          referencia?: string | null
+          telefone: string
+          updated_at?: string | null
+        }
+        Update: {
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string | null
+          complemento?: string | null
+          cpf?: string | null
+          created_at?: string | null
+          email?: string | null
+          estado?: string | null
+          id?: string
+          logradouro?: string | null
+          nome?: string
+          numero?: string | null
+          pin_acesso?: string | null
+          referencia?: string | null
+          telefone?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      rota_ausencias: {
+        Row: {
+          created_at: string
+          data_ausencia: string
+          id: string
+          passageiro_id: string
+          registrado_por: string | null
+          rota_id: string
+          sentido: string | null
+        }
+        Insert: {
+          created_at?: string
+          data_ausencia: string
+          id?: string
+          passageiro_id: string
+          registrado_por?: string | null
+          rota_id: string
+          sentido?: string | null
+        }
+        Update: {
+          created_at?: string
+          data_ausencia?: string
+          id?: string
+          passageiro_id?: string
+          registrado_por?: string | null
+          rota_id?: string
+          sentido?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rota_ausencias_passageiro_id_fkey"
+            columns: ["passageiro_id"]
+            isOneToOne: false
+            referencedRelation: "passageiros"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rota_ausencias_registrado_por_fkey"
+            columns: ["registrado_por"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rota_ausencias_rota_id_fkey"
+            columns: ["rota_id"]
+            isOneToOne: false
+            referencedRelation: "rotas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rota_passageiros: {
+        Row: {
+          created_at: string
+          escola_id: string | null
+          id: string
+          ordem: number
+          passageiro_id: string | null
+          rota_id: string
+          sentido: string | null
+          tipo_no: Database["public"]["Enums"]["tipo_no_rota_enum"]
+        }
+        Insert: {
+          created_at?: string
+          escola_id?: string | null
+          id?: string
+          ordem: number
+          passageiro_id?: string | null
+          rota_id: string
+          sentido?: string | null
+          tipo_no?: Database["public"]["Enums"]["tipo_no_rota_enum"]
+        }
+        Update: {
+          created_at?: string
+          escola_id?: string | null
+          id?: string
+          ordem?: number
+          passageiro_id?: string | null
+          rota_id?: string
+          sentido?: string | null
+          tipo_no?: Database["public"]["Enums"]["tipo_no_rota_enum"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rota_passageiros_escola_id_fkey"
+            columns: ["escola_id"]
+            isOneToOne: false
+            referencedRelation: "escolas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rota_passageiros_passageiro_id_fkey"
+            columns: ["passageiro_id"]
+            isOneToOne: false
+            referencedRelation: "passageiros"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rota_passageiros_rota_id_fkey"
+            columns: ["rota_id"]
+            isOneToOne: false
+            referencedRelation: "rotas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rotas: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+          updated_at: string
+          usuario_id: string
+          veiculo_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome: string
+          updated_at?: string
+          usuario_id: string
+          veiculo_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
+          updated_at?: string
+          usuario_id?: string
+          veiculo_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rotas_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rotas_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tentativas_login: {
+        Row: {
+          created_at: string | null
+          dispositivo: string | null
+          id: string
+          ip: string | null
+          login_tentado: string
+          motivo_falha: string | null
+          sucesso: boolean
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          dispositivo?: string | null
+          id?: string
+          ip?: string | null
+          login_tentado: string
+          motivo_falha?: string | null
+          sucesso?: boolean
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          dispositivo?: string | null
+          id?: string
+          ip?: string | null
+          login_tentado?: string
+          motivo_falha?: string | null
+          sucesso?: boolean
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      usuario_configuracoes: {
+        Row: {
+          cobranca_atraso_3_dias_ativo: boolean
+          cobranca_atraso_5_dias_ativo: boolean
+          cobranca_atraso_7_dias_ativo: boolean
+          cobranca_aviso_previo_ativo: boolean
+          cobranca_aviso_previo_whatsapp_ativo: boolean
+          cobranca_dias_aviso_previo: number | null
+          cobranca_vencimento_hoje_ativo: boolean
+          contrato_exibir_dados_veiculo: boolean
+          created_at: string
+          exibir_telefone_lista_alunos: boolean
+          formato_nome_aluno: string
+          formato_nome_responsavel: string
+          notificar_conclusao_parada: boolean
+          notificar_inicio_rota: boolean
+          notificar_motorista_aniversarios: boolean
+          notificar_motorista_parcelas: boolean
+          notificar_proxima_parada: boolean
+          rastreamento_ativo: boolean
+          rastreamento_modo: string
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          cobranca_atraso_3_dias_ativo?: boolean
+          cobranca_atraso_5_dias_ativo?: boolean
+          cobranca_atraso_7_dias_ativo?: boolean
+          cobranca_aviso_previo_ativo?: boolean
+          cobranca_aviso_previo_whatsapp_ativo?: boolean
+          cobranca_dias_aviso_previo?: number | null
+          cobranca_vencimento_hoje_ativo?: boolean
+          contrato_exibir_dados_veiculo?: boolean
+          created_at?: string
+          exibir_telefone_lista_alunos?: boolean
+          formato_nome_aluno?: string
+          formato_nome_responsavel?: string
+          notificar_conclusao_parada?: boolean
+          notificar_inicio_rota?: boolean
+          notificar_motorista_aniversarios?: boolean
+          notificar_motorista_parcelas?: boolean
+          notificar_proxima_parada?: boolean
+          rastreamento_ativo?: boolean
+          rastreamento_modo?: string
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          cobranca_atraso_3_dias_ativo?: boolean
+          cobranca_atraso_5_dias_ativo?: boolean
+          cobranca_atraso_7_dias_ativo?: boolean
+          cobranca_aviso_previo_ativo?: boolean
+          cobranca_aviso_previo_whatsapp_ativo?: boolean
+          cobranca_dias_aviso_previo?: number | null
+          cobranca_vencimento_hoje_ativo?: boolean
+          contrato_exibir_dados_veiculo?: boolean
+          created_at?: string
+          exibir_telefone_lista_alunos?: boolean
+          formato_nome_aluno?: string
+          formato_nome_responsavel?: string
+          notificar_conclusao_parada?: boolean
+          notificar_inicio_rota?: boolean
+          notificar_motorista_aniversarios?: boolean
+          notificar_motorista_parcelas?: boolean
+          notificar_proxima_parada?: boolean
+          rastreamento_ativo?: boolean
+          rastreamento_modo?: string
+          updated_at?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "usuario_configuracoes_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: true
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      usuario_push_tokens: {
+        Row: {
+          created_at: string | null
+          id: string
+          platform: string
+          token: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          platform: string
+          token: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          platform?: string
+          token?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      usuarios: {
+        Row: {
+          apelido: string | null
+          assinatura_digital_url: string | null
+          ativo: boolean | null
+          bairro: string | null
+          canal_aquisicao: string | null
+          cep: string | null
+          cidade: string | null
+          config_contrato: Json | null
+          config_renovacao: Json | null
+          conta_pai_id: string | null
+          cpf_responsavel: string | null
+          cpfcnpj: string
+          created_at: string
+          data_nascimento: string | null
+          dispositivo_cadastro: string | null
+          email: string
+          estado: string | null
+          id: string
+          logo_url: string | null
+          logradouro: string | null
+          metadados_cadastro: Json | null
+          nome: string
+          numero: string | null
+          razao_social: string | null
+          telefone: string
+          termos_aceitos_em: string | null
+          termos_versao: string | null
+          tipo: Database["public"]["Enums"]["user_type_enum"]
+          updated_at: string
+          veiculo_id: string | null
+        }
+        Insert: {
+          apelido?: string | null
+          assinatura_digital_url?: string | null
+          ativo?: boolean | null
+          bairro?: string | null
+          canal_aquisicao?: string | null
+          cep?: string | null
+          cidade?: string | null
+          config_contrato?: Json | null
+          config_renovacao?: Json | null
+          conta_pai_id?: string | null
+          cpf_responsavel?: string | null
+          cpfcnpj: string
+          created_at?: string
+          data_nascimento?: string | null
+          dispositivo_cadastro?: string | null
+          email: string
+          estado?: string | null
+          id: string
+          logo_url?: string | null
+          logradouro?: string | null
+          metadados_cadastro?: Json | null
+          nome: string
+          numero?: string | null
+          razao_social?: string | null
+          telefone: string
+          termos_aceitos_em?: string | null
+          termos_versao?: string | null
+          tipo?: Database["public"]["Enums"]["user_type_enum"]
+          updated_at?: string
+          veiculo_id?: string | null
+        }
+        Update: {
+          apelido?: string | null
+          assinatura_digital_url?: string | null
+          ativo?: boolean | null
+          bairro?: string | null
+          canal_aquisicao?: string | null
+          cep?: string | null
+          cidade?: string | null
+          config_contrato?: Json | null
+          config_renovacao?: Json | null
+          conta_pai_id?: string | null
+          cpf_responsavel?: string | null
+          cpfcnpj?: string
+          created_at?: string
+          data_nascimento?: string | null
+          dispositivo_cadastro?: string | null
+          email?: string
+          estado?: string | null
+          id?: string
+          logo_url?: string | null
+          logradouro?: string | null
+          metadados_cadastro?: Json | null
+          nome?: string
+          numero?: string | null
+          razao_social?: string | null
+          telefone?: string
+          termos_aceitos_em?: string | null
+          termos_versao?: string | null
+          tipo?: Database["public"]["Enums"]["user_type_enum"]
+          updated_at?: string
+          veiculo_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "usuarios_conta_pai_id_fkey"
+            columns: ["conta_pai_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "usuarios_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      veiculos: {
+        Row: {
+          ativo: boolean | null
+          chave_pix: string | null
+          created_at: string | null
+          id: string
+          marca: string
+          modelo: string
+          placa: string
+          tipo_chave_pix: string | null
+          updated_at: string | null
+          usuario_id: string
+        }
+        Insert: {
+          ativo?: boolean | null
+          chave_pix?: string | null
+          created_at?: string | null
+          id?: string
+          marca: string
+          modelo: string
+          placa: string
+          tipo_chave_pix?: string | null
+          updated_at?: string | null
+          usuario_id: string
+        }
+        Update: {
+          ativo?: boolean | null
+          chave_pix?: string | null
+          created_at?: string | null
+          id?: string
+          marca?: string
+          modelo?: string
+          placa?: string
+          tipo_chave_pix?: string | null
+          updated_at?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "veiculos_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_instances: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          instance_name: string
+          is_active: boolean
+          is_default_for_purpose: boolean
+          purpose: Database["public"]["Enums"]["whatsapp_purpose_enum"]
+          rate_limit_duration: number | null
+          rate_limit_max: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          instance_name: string
+          is_active?: boolean
+          is_default_for_purpose?: boolean
+          purpose?: Database["public"]["Enums"]["whatsapp_purpose_enum"]
+          rate_limit_duration?: number | null
+          rate_limit_max?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          instance_name?: string
+          is_active?: boolean
+          is_default_for_purpose?: boolean
+          purpose?: Database["public"]["Enums"]["whatsapp_purpose_enum"]
+          rate_limit_duration?: number | null
+          rate_limit_max?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      bytea_to_text: { Args: { data: string }; Returns: string }
+      confirm_invoice_payment: { Args: { p_fatura_id: string }; Returns: Json }
+      evt_curtir: { Args: { p_delta: number; p_foto: string }; Returns: number }
+      fn_limpar_logs_antigos: {
+        Args: {
+          p_dias_atividades?: number
+          p_dias_fila?: number
+          p_dias_login?: number
+        }
+        Returns: Json
+      }
+      get_admin_dashboard_kpis: { Args: never; Returns: Json }
+      get_admin_logs_by_user: {
+        Args: {
+          p_acao?: string
+          p_data_fim?: string
+          p_data_inicio?: string
+          p_entidade?: string
+          p_limit?: number
+          p_offset?: number
+          p_search?: string
+          p_segmento?: string
+          p_tz?: string
+        }
+        Returns: {
+          assinatura_status: string
+          cadastrado_em: string
+          primeira_atividade_em: string
+          tipo_usuario: string
+          total_atividades: number
+          total_ativos: number
+          total_novos: number
+          total_recorrentes: number
+          total_trial: number
+          total_usuarios: number
+          total_vitalicios: number
+          ultima_atividade_em: string
+          ultimas_atividades: Json
+          usuario_apelido: string
+          usuario_email: string
+          usuario_id: string
+          usuario_logo_url: string
+          usuario_nome: string
+          usuario_telefone: string
+        }[]
+      }
+      get_admin_trials_pipeline: {
+        Args: never
+        Returns: {
+          alunos: number
+          apelido: string
+          assinatura_id: string
+          contratos: number
+          dias_acessados: number
+          dias_restantes: number
+          escolas: number
+          indicado_por: string
+          nome: string
+          rotas: number
+          solicitacoes: number
+          total_acoes: number
+          trial_ends_at: string
+          usuario_id: string
+          valor_anual: number
+          valor_mensal: number
+          veiculos: number
+        }[]
+      }
+      get_admin_trials_pipeline_v2: {
+        Args: never
+        Returns: {
+          alunos: number
+          apelido: string
+          assinatura_id: string
+          contratos: number
+          dias_acessados: number
+          dias_restantes: number
+          escolas: number
+          indicado_por: string
+          nome: string
+          rotas: number
+          solicitacoes: number
+          status: string
+          telefone: string
+          total_acoes: number
+          trial_ends_at: string
+          usuario_id: string
+          valor_anual: number
+          valor_mensal: number
+          veiculos: number
+        }[]
+      }
+      get_admin_user_kpis: { Args: { p_user_id: string }; Returns: Json }
+      get_motoristas_daily_pulse: {
+        Args: {
+          p_date?: string
+          p_limit?: number
+          p_offset?: number
+          p_search?: string
+          p_subscription_status?: string
+          p_tipo_usuario?: string
+          p_tz?: string
+        }
+        Returns: {
+          apelido: string
+          assinatura_status: string
+          assinatura_vencimento: string
+          cadastrado_em: string
+          email: string
+          id: string
+          is_vitalicio: boolean
+          nome: string
+          primeiro_acesso_dia: string
+          reengajou_no_dia: boolean
+          telefone: string
+          tipo_usuario_dia: string
+          total_atividades_dia: number
+          total_count: number
+          ultima_acao_dia: string
+          ultima_descricao_dia: string
+          ultimo_acesso_dia: string
+        }[]
+      }
+      get_motoristas_daily_pulse_stats: {
+        Args: { p_date?: string; p_tz?: string }
+        Returns: {
+          total_acessos_unicos: number
+          total_ativos: number
+          total_novos: number
+          total_novos_reengajados: number
+          total_recorrentes: number
+          total_trial: number
+          total_vencidos_expirados: number
+          total_vitalicios: number
+        }[]
+      }
+      get_motoristas_latest_activity: {
+        Args: {
+          p_health_status?: string
+          p_limit?: number
+          p_offset?: number
+          p_search?: string
+          p_sort?: string
+          p_subscription_status?: string
+        }
+        Returns: {
+          apelido: string
+          assinatura_status: string
+          assinatura_vencimento: string
+          cadastrado_em: string
+          dias_inativo: number
+          email: string
+          id: string
+          nome: string
+          telefone: string
+          total_count: number
+          ultima_acao: string
+          ultima_atividade_at: string
+          ultima_descricao: string
+        }[]
+      }
+      get_motoristas_radar_stats: {
+        Args: { p_subscription_status?: string }
+        Returns: {
+          total_alerta: number
+          total_ativos: number
+          total_em_risco: number
+          total_motoristas: number
+          total_sem_atividade: number
+        }[]
+      }
+      http: {
+        Args: { request: Database["public"]["CompositeTypes"]["http_request"] }
+        Returns: Database["public"]["CompositeTypes"]["http_response"]
+        SetofOptions: {
+          from: "http_request"
+          to: "http_response"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      http_delete:
+        | {
+            Args: { uri: string }
+            Returns: Database["public"]["CompositeTypes"]["http_response"]
+            SetofOptions: {
+              from: "*"
+              to: "http_response"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+        | {
+            Args: { content: string; content_type: string; uri: string }
+            Returns: Database["public"]["CompositeTypes"]["http_response"]
+            SetofOptions: {
+              from: "*"
+              to: "http_response"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+      http_get:
+        | {
+            Args: { uri: string }
+            Returns: Database["public"]["CompositeTypes"]["http_response"]
+            SetofOptions: {
+              from: "*"
+              to: "http_response"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+        | {
+            Args: { data: Json; uri: string }
+            Returns: Database["public"]["CompositeTypes"]["http_response"]
+            SetofOptions: {
+              from: "*"
+              to: "http_response"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+      http_head: {
+        Args: { uri: string }
+        Returns: Database["public"]["CompositeTypes"]["http_response"]
+        SetofOptions: {
+          from: "*"
+          to: "http_response"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      http_header: {
+        Args: { field: string; value: string }
+        Returns: Database["public"]["CompositeTypes"]["http_header"]
+        SetofOptions: {
+          from: "*"
+          to: "http_header"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      http_list_curlopt: {
+        Args: never
+        Returns: {
+          curlopt: string
+          value: string
+        }[]
+      }
+      http_patch: {
+        Args: { content: string; content_type: string; uri: string }
+        Returns: Database["public"]["CompositeTypes"]["http_response"]
+        SetofOptions: {
+          from: "*"
+          to: "http_response"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      http_post:
+        | {
+            Args: { content: string; content_type: string; uri: string }
+            Returns: Database["public"]["CompositeTypes"]["http_response"]
+            SetofOptions: {
+              from: "*"
+              to: "http_response"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+        | {
+            Args: { data: Json; uri: string }
+            Returns: Database["public"]["CompositeTypes"]["http_response"]
+            SetofOptions: {
+              from: "*"
+              to: "http_response"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+      http_put: {
+        Args: { content: string; content_type: string; uri: string }
+        Returns: Database["public"]["CompositeTypes"]["http_response"]
+        SetofOptions: {
+          from: "*"
+          to: "http_response"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      http_reset_curlopt: { Args: never; Returns: boolean }
+      http_set_curlopt: {
+        Args: { curlopt: string; value: string }
+        Returns: boolean
+      }
+      is_admin: { Args: never; Returns: boolean }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
+      text_to_bytea: { Args: { data: string }; Returns: string }
+      unaccent: { Args: { "": string }; Returns: string }
+      urlencode:
+        | { Args: { data: Json }; Returns: string }
+        | {
+            Args: { string: string }
+            Returns: {
+              error: true
+            } & "Could not choose the best candidate function between: public.urlencode(string => bytea), public.urlencode(string => varchar). Try renaming the parameters or the function itself in the database so function overloading can be resolved"
+          }
+        | {
+            Args: { string: string }
+            Returns: {
+              error: true
+            } & "Could not choose the best candidate function between: public.urlencode(string => bytea), public.urlencode(string => varchar). Try renaming the parameters or the function itself in the database so function overloading can be resolved"
+          }
+    }
+    Enums: {
+      execucao_passageiro_status_enum: "pendente" | "embarcado" | "ausente"
+      execucao_rota_status_enum: "iniciada" | "concluida" | "cancelada"
+      festa_categoria_tema_enum:
+        | "INFANTIL"
+        | "QUINZE_ANOS"
+        | "CASAMENTO"
+        | "ADULTO"
+        | "CORPORATIVO"
+      festa_efeito_extra_enum:
+        | "MOLDURA_ADICIONAL"
+        | "DIAS_GALERIA_ADICIONAIS"
+        | "LIBERAR_VIDEO"
+        | "LIBERAR_TELAO"
+        | "ENTREGAVEL_MANUAL"
+      festa_metodo_pagamento_enum:
+        | "PIX_MANUAL"
+        | "CARTAO_LINK"
+        | "CORTESIA"
+        | "CREDITO_B2B"
+      festa_pacote_tipo_enum: "BASICO" | "COMPLETO"
+      festa_status_assinatura_b2b_enum:
+        | "TRIAL"
+        | "ATIVA"
+        | "INADIMPLENTE"
+        | "CANCELADA"
+      festa_status_moderacao_enum: "APROVADA" | "PENDENTE" | "OCULTA"
+      festa_status_pedido_enum:
+        | "AGUARDANDO_SINAL"
+        | "SINAL_PAGO"
+        | "AGUARDANDO_BRIEFING"
+        | "EM_MONTAGEM"
+        | "ENTREGUE"
+        | "PAGO_COMPLETO"
+        | "CANCELADO"
+      festa_tipo_midia_enum: "FOTO" | "VIDEO"
+      festa_tipo_perfil_enum:
+        | "ADMIN"
+        | "ANFITRIAO"
+        | "PARCEIRO_ADMIN"
+        | "PARCEIRO_OPERADOR"
+      festa_tipo_transacao_credito_enum:
+        | "RECARGA_PLANO"
+        | "COMPRA_AVULSA"
+        | "CONSUMO_EVENTO"
+        | "ESTORNO"
+      fretamento_pagamento_status_enum: "pendente" | "pago_parcial" | "quitado"
+      fretamento_status_enum:
+        | "pendente"
+        | "confirmado"
+        | "concluido"
+        | "cancelado"
+      fretamento_tipo_enum: "fretamento" | "passeio"
+      genero_enum: "masculino" | "feminino" | "prefiro_nao_informar"
+      modalidade_enum: "ida" | "volta" | "ida_volta"
+      modo_cobranca_enum: "DESATIVADO" | "LEMBRETES" | "AUTOMATICA"
+      parentesco_enum:
+        | "pai"
+        | "mae"
+        | "avo"
+        | "tio"
+        | "irmao"
+        | "primo"
+        | "padrastro"
+        | "madrasta"
+        | "responsavel_legal"
+        | "outro"
+      participante_pagamento_status_enum: "pendente" | "pago" | "parcial"
+      provedor_pagamento_enum: "WOOVI" | "ASAAS" | "EFIPAY" | "BANCO_DO_BRASIL"
+      renovacao_status_enum:
+        | "pendente"
+        | "confirmado"
+        | "recusado"
+        | "concluido"
+      status_repasse_enum:
+        | "PENDENTE"
+        | "PROCESSANDO"
+        | "SUCESSO"
+        | "FALHA"
+        | "CANCELADO"
+      tipo_no_rota_enum: "passageiro" | "escola"
+      tipo_pagamento_enum:
+        | "dinheiro"
+        | "cartao-credito"
+        | "cartao-debito"
+        | "transferencia"
+        | "PIX"
+        | "boleto"
+      user_type_enum:
+        | "admin"
+        | "motorista"
+        | "motorista_auxiliar"
+        | "monitor"
+        | "responsavel"
+      whatsapp_purpose_enum: "TRANSACTIONAL" | "BULK"
+      whatsapp_status_enum:
+        | "CONNECTED"
+        | "DISCONNECTED"
+        | "CONNECTING"
+        | "UNKNOWN"
+        | "NOT_FOUND"
+    }
+    CompositeTypes: {
+      http_header: {
+        field: string | null
+        value: string | null
+      }
+      http_request: {
+        method: unknown
+        uri: string | null
+        headers: Database["public"]["CompositeTypes"]["http_header"][] | null
+        content_type: string | null
+        content: string | null
+      }
+      http_response: {
+        status: number | null
+        content_type: string | null
+        headers: Database["public"]["CompositeTypes"]["http_header"][] | null
+        content: string | null
+      }
+    }
+  }
+}
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never) = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never) = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      execucao_passageiro_status_enum: ["pendente", "embarcado", "ausente"],
+      execucao_rota_status_enum: ["iniciada", "concluida", "cancelada"],
+      festa_categoria_tema_enum: [
+        "INFANTIL",
+        "QUINZE_ANOS",
+        "CASAMENTO",
+        "ADULTO",
+        "CORPORATIVO",
+      ],
+      festa_efeito_extra_enum: [
+        "MOLDURA_ADICIONAL",
+        "DIAS_GALERIA_ADICIONAIS",
+        "LIBERAR_VIDEO",
+        "LIBERAR_TELAO",
+        "ENTREGAVEL_MANUAL",
+      ],
+      festa_metodo_pagamento_enum: [
+        "PIX_MANUAL",
+        "CARTAO_LINK",
+        "CORTESIA",
+        "CREDITO_B2B",
+      ],
+      festa_pacote_tipo_enum: ["BASICO", "COMPLETO"],
+      festa_status_assinatura_b2b_enum: [
+        "TRIAL",
+        "ATIVA",
+        "INADIMPLENTE",
+        "CANCELADA",
+      ],
+      festa_status_moderacao_enum: ["APROVADA", "PENDENTE", "OCULTA"],
+      festa_status_pedido_enum: [
+        "AGUARDANDO_SINAL",
+        "SINAL_PAGO",
+        "AGUARDANDO_BRIEFING",
+        "EM_MONTAGEM",
+        "ENTREGUE",
+        "PAGO_COMPLETO",
+        "CANCELADO",
+      ],
+      festa_tipo_midia_enum: ["FOTO", "VIDEO"],
+      festa_tipo_perfil_enum: [
+        "ADMIN",
+        "ANFITRIAO",
+        "PARCEIRO_ADMIN",
+        "PARCEIRO_OPERADOR",
+      ],
+      festa_tipo_transacao_credito_enum: [
+        "RECARGA_PLANO",
+        "COMPRA_AVULSA",
+        "CONSUMO_EVENTO",
+        "ESTORNO",
+      ],
+      fretamento_pagamento_status_enum: ["pendente", "pago_parcial", "quitado"],
+      fretamento_status_enum: [
+        "pendente",
+        "confirmado",
+        "concluido",
+        "cancelado",
+      ],
+      fretamento_tipo_enum: ["fretamento", "passeio"],
+      genero_enum: ["masculino", "feminino", "prefiro_nao_informar"],
+      modalidade_enum: ["ida", "volta", "ida_volta"],
+      modo_cobranca_enum: ["DESATIVADO", "LEMBRETES", "AUTOMATICA"],
+      parentesco_enum: [
+        "pai",
+        "mae",
+        "avo",
+        "tio",
+        "irmao",
+        "primo",
+        "padrastro",
+        "madrasta",
+        "responsavel_legal",
+        "outro",
+      ],
+      participante_pagamento_status_enum: ["pendente", "pago", "parcial"],
+      provedor_pagamento_enum: ["WOOVI", "ASAAS", "EFIPAY", "BANCO_DO_BRASIL"],
+      renovacao_status_enum: [
+        "pendente",
+        "confirmado",
+        "recusado",
+        "concluido",
+      ],
+      status_repasse_enum: [
+        "PENDENTE",
+        "PROCESSANDO",
+        "SUCESSO",
+        "FALHA",
+        "CANCELADO",
+      ],
+      tipo_no_rota_enum: ["passageiro", "escola"],
+      tipo_pagamento_enum: [
+        "dinheiro",
+        "cartao-credito",
+        "cartao-debito",
+        "transferencia",
+        "PIX",
+        "boleto",
+      ],
+      user_type_enum: [
+        "admin",
+        "motorista",
+        "motorista_auxiliar",
+        "monitor",
+        "responsavel",
+      ],
+      whatsapp_purpose_enum: ["TRANSACTIONAL", "BULK"],
+      whatsapp_status_enum: [
+        "CONNECTED",
+        "DISCONNECTED",
+        "CONNECTING",
+        "UNKNOWN",
+        "NOT_FOUND",
+      ],
+    },
+  },
+} as const
+
