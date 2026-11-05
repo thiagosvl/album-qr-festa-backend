@@ -29,7 +29,10 @@ export const listagemMidiasGestaoQuerySchema = z.object({
 });
 
 export const moderarMidiaSchema = z.object({
-  status_moderacao: z.enum(Constants.public.Enums.festa_status_moderacao_enum),
+  status_moderacao: z
+    .enum(Constants.public.Enums.festa_status_moderacao_enum)
+    .optional(),
+  fixada_demo: z.boolean().optional(),
 });
 
 export const moderarMidiasEmLoteSchema = z.object({

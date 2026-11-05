@@ -4,6 +4,7 @@ import { eventoController } from "../controllers/evento.controller.js";
 import { gestaoEventoController } from "../controllers/gestao-evento.controller.js";
 import { midiaController } from "../controllers/midia.controller.js";
 import { molduraController } from "../controllers/moldura.controller.js";
+import { parceiroB2bController } from "../controllers/parceiro-b2b.controller.js";
 import { verifyFestaAdmin } from "../middlewares/auth.middleware.js";
 
 export async function adminRoutes(app: FastifyInstance) {
@@ -26,6 +27,27 @@ export async function adminRoutes(app: FastifyInstance) {
   app.patch(
     "/catalogo/temas/:id",
     catalogoController.atualizarTema.bind(catalogoController)
+  );
+  app.patch(
+    "/catalogo/planos-b2b/:id",
+    parceiroB2bController.atualizarPlanoB2bAdmin.bind(parceiroB2bController)
+  );
+
+  app.get(
+    "/parceiros-b2b",
+    parceiroB2bController.listarAdmin.bind(parceiroB2bController)
+  );
+  app.post(
+    "/parceiros-b2b",
+    parceiroB2bController.criarAdmin.bind(parceiroB2bController)
+  );
+  app.patch(
+    "/parceiros-b2b/:id",
+    parceiroB2bController.atualizarAdmin.bind(parceiroB2bController)
+  );
+  app.post(
+    "/parceiros-b2b/:id/creditos",
+    parceiroB2bController.registrarTransacaoCreditoAdmin.bind(parceiroB2bController)
   );
 
   app.get("/eventos", eventoController.listarAdmin.bind(eventoController));
@@ -71,6 +93,10 @@ export async function adminRoutes(app: FastifyInstance) {
   app.patch(
     "/eventos/:eventoId/midias/:midiaId/moderacao",
     midiaController.moderarPorEventoAdmin.bind(midiaController)
+  );
+  app.patch(
+    "/eventos/:eventoId/midias/moderacao-lote",
+    midiaController.moderarEmLotePorEventoAdmin.bind(midiaController)
   );
   app.delete(
     "/eventos/:eventoId/midias/:midiaId",
