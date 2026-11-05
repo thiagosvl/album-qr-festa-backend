@@ -67,6 +67,7 @@ export class MidiaService {
       .eq("evento_id", evento.id)
       .eq("status_moderacao", FESTA_STATUS_MODERACAO.APROVADA)
       .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
       .limit(query.limite + 1);
 
     if (!evento.galeria_publica && query.sessao_id) {
@@ -223,6 +224,7 @@ export class MidiaService {
       .select("*")
       .eq("evento_id", eventoId)
       .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
       .limit(query.limite + 1);
 
     if (query.status_moderacao) {
@@ -352,7 +354,8 @@ export class MidiaService {
       .select("*")
       .eq("evento_id", eventoId)
       .eq("status_moderacao", FESTA_STATUS_MODERACAO.APROVADA)
-      .order("created_at", { ascending: true });
+      .order("created_at", { ascending: true })
+      .order("id", { ascending: true });
 
     if (error) throw new AppError(error.message, 500);
 
