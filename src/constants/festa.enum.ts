@@ -25,6 +25,18 @@ export const FESTA_TABLES = {
   EVENTO_MIDIAS: "festa_evento_midias",
 } as const;
 
+export const FESTA_RPC = {
+  AJUSTAR_CURTIDAS_MIDIA: "festa_ajustar_curtidas_midia",
+} as const;
+
+export const FESTA_VARIACAO_CURTIDA = {
+  CURTIR: 1,
+  DESCURTIR: -1,
+} as const;
+
+export type FestaVariacaoCurtida =
+  (typeof FESTA_VARIACAO_CURTIDA)[keyof typeof FESTA_VARIACAO_CURTIDA];
+
 export const FESTA_BUCKETS = {
   MIDIAS: "festa-midias",
 } as const;

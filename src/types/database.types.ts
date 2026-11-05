@@ -3588,6 +3588,10 @@ export type Database = {
       bytea_to_text: { Args: { data: string }; Returns: string }
       confirm_invoice_payment: { Args: { p_fatura_id: string }; Returns: Json }
       evt_curtir: { Args: { p_delta: number; p_foto: string }; Returns: number }
+      festa_ajustar_curtidas_midia: {
+        Args: { p_midia_id: string; p_variacao: number }
+        Returns: Database["public"]["Tables"]["festa_evento_midias"]["Row"]
+      }
       fn_limpar_logs_antigos: {
         Args: {
           p_dias_atividades?: number

@@ -5,9 +5,12 @@ import type { ReadableStream as WebReadableStream } from "stream/web";
 import { getPublicStorageUrl, supabaseAdmin } from "../config/supabase.js";
 import {
   FESTA_BUCKETS,
+  FESTA_RPC,
   FESTA_STATUS_MODERACAO,
   FESTA_TABLES,
   FESTA_TIPO_MIDIA,
+  FESTA_VARIACAO_CURTIDA,
+  type FestaVariacaoCurtida,
 } from "../constants/festa.enum.js";
 import { messages } from "../constants/messages.js";
 import { AppError } from "../errors/AppError.js";
@@ -155,23 +158,29 @@ export class MidiaService {
   }
 
   async curtirMidiaPublica(midiaId: string): Promise<MidiaResponseDto> {
-    const { data: atual, error: findError } = await supabaseAdmin
-      .from(FESTA_TABLES.EVENTO_MIDIAS)
-      .select("*")
-      .eq("id", midiaId)
-      .maybeSingle();
+    return this.ajustarCurtidas(midiaId, FESTA_VARIACAO_CURTIDA.CURTIR);
+  }
 
-    if (findError) throw new AppError(findError.message, 500);
-    if (!atual) throw new AppError(messages.midia.naoEncontrada, 404);
+  async descurtirMidiaPublica(midiaId: string): Promise<MidiaResponseDto> {
+    return this.ajustarCurtidas(midiaId, FESTA_VARIACAO_CURTIDA.DESCURTIR);
+  }
 
-    const { data, error } = await supabaseAdmin
-      .from(FESTA_TABLES.EVENTO_MIDIAS)
-      .update({ curtidas: atual.curtidas + 1 })
-      .eq("id", midiaId)
-      .select("*")
-      .single();
+  /**
+   * O ajuste é feito por uma função do banco (um único UPDATE), o que evita
+   * perder curtidas quando vários convidados curtem ao mesmo tempo.
+   */
+  private async ajustarCurtidas(
+    midiaId: string,
+    variacao: FestaVariacaoCurtida
+  ): Promise<MidiaResponseDto> {
+    const { data, error } = await supabaseAdmin.rpc(
+      FESTA_RPC.AJUSTAR_CURTIDAS_MIDIA,
+      { p_midia_id: midiaId, p_variacao: variacao }
+    );
 
-    if (error) throw new AppError(error.message, 400);
+    if (error) throw new AppError(error.message, 500);
+    if (!data?.id) throw new AppError(messages.midia.naoEncontrada, 404);
+
     return formatarMidiaDto(data);
   }
 
@@ -246,9 +255,21 @@ export class MidiaService {
     midiaId: string,
     input: ModerarMidiaInput
   ): Promise<MidiaResponseDto> {
+    const updatePayload: {
+      status_moderacao?: ModerarMidiaInput["status_moderacao"];
+      fixada_demo?: boolean;
+    } = {};
+
+    if (input.status_moderacao !== undefined) {
+      updatePayload.status_moderacao = input.status_moderacao;
+    }
+    if (input.fixada_demo !== undefined) {
+      updatePayload.fixada_demo = input.fixada_demo;
+    }
+
     const { data, error } = await supabaseAdmin
       .from(FESTA_TABLES.EVENTO_MIDIAS)
-      .update({ status_moderacao: input.status_moderacao })
+      .update(updatePayload)
       .eq("id", midiaId)
       .eq("evento_id", eventoId)
       .select("*")

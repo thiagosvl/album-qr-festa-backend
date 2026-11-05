@@ -32,6 +32,12 @@ export class MidiaController {
     return reply.status(200).send(resultado);
   }
 
+  async descurtirMidiaPublica(request: FastifyRequest, reply: FastifyReply) {
+    const { id } = request.params as { id: string };
+    const resultado = await midiaService.descurtirMidiaPublica(id);
+    return reply.status(200).send(resultado);
+  }
+
   async excluirPropriaMidiaConvidado(request: FastifyRequest, reply: FastifyReply) {
     const { slug, midiaId } = request.params as { slug: string; midiaId: string };
     const { sessao_id } = excluirMidiaConvidadoQuerySchema.parse(request.query);
@@ -107,6 +113,13 @@ export class MidiaController {
     const body = moderarMidiaSchema.parse(request.body);
     const resultado = await midiaService.moderarMidia(eventoId, midiaId, body);
     return reply.status(200).send(resultado);
+  }
+
+  async moderarEmLotePorEventoAdmin(request: FastifyRequest, reply: FastifyReply) {
+    const { eventoId } = request.params as { eventoId: string };
+    const body = moderarMidiasEmLoteSchema.parse(request.body);
+    const atualizadas = await midiaService.moderarMidiasEmLote(eventoId, body);
+    return reply.status(200).send({ atualizadas });
   }
 
   async excluirPorEventoAdmin(request: FastifyRequest, reply: FastifyReply) {
