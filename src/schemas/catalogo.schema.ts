@@ -37,6 +37,24 @@ export const salvarExtraB2cSchema = z.object({
   ativo: z.boolean().default(true),
 });
 
+export const atualizarExtraB2cSchema = z.object({
+  slug: z
+    .string()
+    .min(2)
+    .max(60)
+    .regex(/^[a-z0-9-]+$/)
+    .optional(),
+  nome: z.string().min(2).max(100).optional(),
+  descricao: z.string().max(300).nullable().optional(),
+  preco_centavos: z.number().int().min(0).optional(),
+  efeito_tipo: z
+    .enum(Constants.public.Enums.festa_efeito_extra_enum)
+    .optional(),
+  efeito_valor: z.number().int().min(1).optional(),
+  ordem: z.number().int().min(0).optional(),
+  ativo: z.boolean().optional(),
+});
+
 export const salvarTemaCatalogoSchema = z.object({
   nome: z.string().min(2).max(100),
   slug: z
@@ -55,12 +73,39 @@ export const salvarTemaCatalogoSchema = z.object({
     .string()
     .regex(/^#[0-9a-fA-F]{6}$/)
     .default(FESTA_CORES_PADRAO.SECUNDARIA),
-  thumb_url: z.string().url().nullable().optional(),
-  moldura_preview_url: z.string().url().nullable().optional(),
+  thumb_url: z.string().max(500).nullable().optional(),
+  moldura_preview_url: z.string().max(500).nullable().optional(),
   publico: z.boolean().default(true),
   parceiro_proprietario_id: z.string().uuid().nullable().optional(),
   ordem: z.number().int().min(0).default(0),
   ativo: z.boolean().default(true),
+});
+
+export const atualizarTemaCatalogoSchema = z.object({
+  nome: z.string().min(2).max(100).optional(),
+  slug: z
+    .string()
+    .min(2)
+    .max(80)
+    .regex(/^[a-z0-9-]+$/)
+    .optional(),
+  categoria: z
+    .enum(Constants.public.Enums.festa_categoria_tema_enum)
+    .optional(),
+  cor_primaria_padrao: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/)
+    .optional(),
+  cor_secundaria_padrao: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/)
+    .optional(),
+  thumb_url: z.string().max(500).nullable().optional(),
+  moldura_preview_url: z.string().max(500).nullable().optional(),
+  publico: z.boolean().optional(),
+  parceiro_proprietario_id: z.string().uuid().nullable().optional(),
+  ordem: z.number().int().min(0).optional(),
+  ativo: z.boolean().optional(),
 });
 
 export type AtualizarPacoteB2cInput = z.infer<typeof atualizarPacoteB2cSchema>;

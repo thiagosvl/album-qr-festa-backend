@@ -23,6 +23,7 @@ export const FESTA_TABLES = {
   EVENTO_EXTRAS: "festa_evento_extras",
   EVENTO_MOLDURAS: "festa_evento_molduras",
   EVENTO_MIDIAS: "festa_evento_midias",
+  RECUPERACOES_SENHA: "festa_recuperacoes_senha",
 } as const;
 
 export const FESTA_RPC = {

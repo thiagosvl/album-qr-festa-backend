@@ -1,6 +1,8 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import {
+  atualizarExtraB2cSchema,
   atualizarPacoteB2cSchema,
+  atualizarTemaCatalogoSchema,
   salvarExtraB2cSchema,
   salvarTemaCatalogoSchema,
 } from "../schemas/catalogo.schema.js";
@@ -32,7 +34,7 @@ export class CatalogoController {
 
   async atualizarExtraB2c(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    const body = salvarExtraB2cSchema.partial().parse(request.body);
+    const body = atualizarExtraB2cSchema.parse(request.body);
     const resultado = await catalogoService.atualizarExtraB2c(id, body);
     return reply.status(200).send(resultado);
   }
@@ -45,7 +47,7 @@ export class CatalogoController {
 
   async atualizarTema(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    const body = salvarTemaCatalogoSchema.partial().parse(request.body);
+    const body = atualizarTemaCatalogoSchema.parse(request.body);
     const resultado = await catalogoService.atualizarTemaCatalogo(id, body);
     return reply.status(200).send(resultado);
   }

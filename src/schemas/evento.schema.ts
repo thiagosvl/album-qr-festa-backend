@@ -74,7 +74,55 @@ export const criarEventoAdminSchema = z.object({
   extras: z.array(itemExtraPedidoSchema).default([]),
 });
 
-export const atualizarEventoAdminSchema = criarEventoAdminSchema.partial();
+export const atualizarEventoAdminSchema = z.object({
+  slug: z
+    .string()
+    .min(2)
+    .max(80)
+    .regex(/^[a-z0-9-]+$/)
+    .optional(),
+  titulo: z.string().min(2).max(120).optional(),
+  subtitulo: z.string().max(160).nullable().optional(),
+  boas_vindas: z.string().max(300).nullable().optional(),
+  nome_aniversariante: z.string().max(100).nullable().optional(),
+  idade_aniversariante: z.string().max(40).nullable().optional(),
+  data_evento: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
+  cor_primaria: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/)
+    .optional(),
+  cor_secundaria: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/)
+    .optional(),
+  capa_url: z.string().nullable().optional(),
+  qr_code_pdf_url: z.string().nullable().optional(),
+  tema_id: z.string().uuid().nullable().optional(),
+  parceiro_id: z.string().uuid().nullable().optional(),
+  anfitriao: dadosAnfitriaoInputSchema.optional(),
+  pacote: z.enum(Constants.public.Enums.festa_pacote_tipo_enum).optional(),
+  status_pedido: z
+    .enum(Constants.public.Enums.festa_status_pedido_enum)
+    .optional(),
+  metodo_pagamento: z
+    .enum(Constants.public.Enums.festa_metodo_pagamento_enum)
+    .optional(),
+  valor_pacote_centavos: z.number().int().min(0).optional(),
+  desconto_centavos: z.number().int().min(0).optional(),
+  valor_sinal_centavos: z.number().int().min(0).optional(),
+  valor_pago_centavos: z.number().int().min(0).optional(),
+  observacoes_internas: z.string().max(1000).nullable().optional(),
+  limite_molduras: z.number().int().min(1).max(30).optional(),
+  inclui_telao: z.boolean().optional(),
+  galeria_publica: z.boolean().optional(),
+  moderacao_previa: z.boolean().optional(),
+  permite_envio_midias: z.boolean().optional(),
+  permite_video: z.boolean().optional(),
+  tempo_slideshow_segundos: z.number().int().min(3).max(30).optional(),
+  expira_em: z.string().datetime().nullable().optional(),
+  ativo: z.boolean().optional(),
+  extras: z.array(itemExtraPedidoSchema).optional(),
+});
 
 export const registrarPagamentoManualSchema = z.object({
   tipo_baixa: z.enum([

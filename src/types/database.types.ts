@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -1470,6 +1470,41 @@ export type Database = {
             columns: ["plano_b2b_id"]
             isOneToOne: false
             referencedRelation: "festa_catalogo_planos_b2b"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      festa_recuperacoes_senha: {
+        Row: {
+          codigo: string
+          created_at: string
+          expira_em: string
+          id: string
+          usado: boolean
+          usuario_id: string
+        }
+        Insert: {
+          codigo: string
+          created_at?: string
+          expira_em: string
+          id?: string
+          usado?: boolean
+          usuario_id: string
+        }
+        Update: {
+          codigo?: string
+          created_at?: string
+          expira_em?: string
+          id?: string
+          usado?: boolean
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "festa_recuperacoes_senha_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "festa_usuarios"
             referencedColumns: ["id"]
           },
         ]

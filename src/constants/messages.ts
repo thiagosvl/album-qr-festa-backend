@@ -5,6 +5,22 @@ export const messages = {
     usuarioNaoEncontrado: "Perfil não registrado no Álbum QR Festa.",
     usuarioInativo: "Esta conta está inativa.",
     acessoRestritoAdmin: "Acesso restrito a administradores da plataforma.",
+    acessoRestritoParceiro: "Acesso restrito a parceiros B2B credenciados.",
+    parceiroInativo: "A conta deste parceiro B2B está inativa.",
+    eventoNaoPertenceAoParceiro:
+      "Você não tem permissão para acessar ou alterar este evento.",
+    emailAcessoEmUso:
+      "Este e-mail já está em uso por outra conta no sistema.",
+    contaRecuperacaoNaoEncontrada:
+      "Nenhuma conta ativa encontrada com o e-mail ou CPF/CNPJ informado.",
+    emailAusenteParaRecuperacao:
+      "Esta conta não possui um e-mail cadastrado. Solicite apoio ao suporte para atualizar seu cadastro.",
+    cooldownRecuperacao:
+      "Por favor, aguarde 1 minuto antes de solicitar um novo código.",
+    codigoRecuperacaoInvalido:
+      "Código inválido ou expirado. Verifique os 6 dígitos digitados.",
+    sessaoRecuperacaoExpirada:
+      "Sessão de recuperação expirada. Inicie o processo novamente.",
   },
   evento: {
     naoEncontrado: "Evento não encontrado.",

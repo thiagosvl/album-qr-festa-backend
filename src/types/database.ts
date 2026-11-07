@@ -43,6 +43,10 @@ export type FestaEventoMidia = Tables<"festa_evento_midias">;
 export type FestaEventoMidiaInsert = TablesInsert<"festa_evento_midias">;
 export type FestaEventoMidiaUpdate = TablesUpdate<"festa_evento_midias">;
 
+export type FestaRecuperacaoSenha = Tables<"festa_recuperacoes_senha">;
+export type FestaRecuperacaoSenhaInsert = TablesInsert<"festa_recuperacoes_senha">;
+export type FestaRecuperacaoSenhaUpdate = TablesUpdate<"festa_recuperacoes_senha">;
+
 export type FestaTipoPerfilEnum = Enums<"festa_tipo_perfil_enum">;
 export type FestaPacoteTipoEnum = Enums<"festa_pacote_tipo_enum">;
 export type FestaStatusPedidoEnum = Enums<"festa_status_pedido_enum">;

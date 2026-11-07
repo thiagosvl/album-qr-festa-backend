@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { gestaoEventoController } from "../controllers/gestao-evento.controller.js";
 import { midiaController } from "../controllers/midia.controller.js";
+import { molduraController } from "../controllers/moldura.controller.js";
 
 export async function gestaoRoutes(app: FastifyInstance) {
   app.get("/:token", gestaoEventoController.obterPorToken.bind(gestaoEventoController));
@@ -34,5 +35,26 @@ export async function gestaoRoutes(app: FastifyInstance) {
   app.get(
     "/:token/midias/zip",
     midiaController.baixarZipPorTokenGestao.bind(midiaController)
+  );
+
+  app.get(
+    "/:token/molduras",
+    molduraController.listarPorTokenGestao.bind(molduraController)
+  );
+  app.post(
+    "/:token/molduras",
+    molduraController.criarPorTokenGestao.bind(molduraController)
+  );
+  app.patch(
+    "/:token/molduras/:molduraId",
+    molduraController.atualizarPorTokenGestao.bind(molduraController)
+  );
+  app.put(
+    "/:token/molduras/reordenar",
+    molduraController.reordenarPorTokenGestao.bind(molduraController)
+  );
+  app.delete(
+    "/:token/molduras/:molduraId",
+    molduraController.excluirPorTokenGestao.bind(molduraController)
   );
 }

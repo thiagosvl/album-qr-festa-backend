@@ -1,10 +1,6 @@
-import archiver from "archiver";
 import type { FastifyReply } from "fastify";
-import { Readable } from "stream";
-import type { ReadableStream as WebReadableStream } from "stream/web";
-import { getPublicStorageUrl, supabaseAdmin } from "../config/supabase.js";
+import { supabaseAdmin } from "../config/supabase.js";
 import {
-  FESTA_BUCKETS,
   FESTA_RPC,
   FESTA_STATUS_MODERACAO,
   FESTA_TABLES,
@@ -21,22 +17,19 @@ import type {
   ModerarMidiasEmLoteInput,
   RegistrarMidiaConvidadoInput,
 } from "../schemas/midia.schema.js";
-import type { FestaEventoMidia } from "../types/database.js";
 import type {
   ItemManifestoDownloadDto,
   ListaMidiasPaginadaDto,
   MidiaResponseDto,
 } from "../types/dtos/midia.dto.js";
+import {
+  escreverStreamZipMidiasEvento,
+  formatarMidiaDto,
+  montarManifestoDownloadEvento,
+  removerMidiasEArquivosStorage,
+} from "../utils/midia-storage.helper.js";
 
-export function formatarMidiaDto(midia: FestaEventoMidia): MidiaResponseDto {
-  const thumbPath = midia.thumb_path || midia.path.replace(/\.jpg$/i, "_t.jpg");
-
-  return {
-    ...midia,
-    url_publica: getPublicStorageUrl(FESTA_BUCKETS.MIDIAS, midia.path),
-    url_miniatura: getPublicStorageUrl(FESTA_BUCKETS.MIDIAS, thumbPath),
-  };
-}
+export { formatarMidiaDto };
 
 export class MidiaService {
   async listarMidiasPublicasPorSlug(
@@ -54,7 +47,7 @@ export class MidiaService {
     if (!evento.ativo) throw new AppError(messages.evento.inativo, 403);
 
     if (evento.expira_em && new Date(evento.expira_em).getTime() < Date.now()) {
-      throw new AppError(messages.evento.expirado, 403);
+      return { itens: [], proximo_cursor: null, tem_mais: false };
     }
 
     if (!evento.galeria_publica && !query.sessao_id) {
@@ -74,7 +67,9 @@ export class MidiaService {
       dbQuery = dbQuery.eq("sessao_id", query.sessao_id);
     } else if (evento.is_demo) {
       if (query.sessao_id) {
-        dbQuery = dbQuery.or(`fixada_demo.eq.true,sessao_id.eq.${query.sessao_id}`);
+        dbQuery = dbQuery.or(
+          `fixada_demo.eq.true,sessao_id.eq.${query.sessao_id}`
+        );
       } else {
         dbQuery = dbQuery.eq("fixada_demo", true);
       }
@@ -166,10 +161,6 @@ export class MidiaService {
     return this.ajustarCurtidas(midiaId, FESTA_VARIACAO_CURTIDA.DESCURTIR);
   }
 
-  /**
-   * O ajuste é feito por uma função do banco (um único UPDATE), o que evita
-   * perder curtidas quando vários convidados curtem ao mesmo tempo.
-   */
   private async ajustarCurtidas(
     midiaId: string,
     variacao: FestaVariacaoCurtida
@@ -212,7 +203,7 @@ export class MidiaService {
       throw new AppError(messages.midia.semPermissaoExclusao, 403);
     }
 
-    await this.removerMidiaEArquivos([midia]);
+    await removerMidiasEArquivosStorage([midia]);
   }
 
   async listarMidiasGestao(
@@ -269,6 +260,19 @@ export class MidiaService {
       updatePayload.fixada_demo = input.fixada_demo;
     }
 
+    if (Object.keys(updatePayload).length === 0) {
+      const { data: existente, error: findErr } = await supabaseAdmin
+        .from(FESTA_TABLES.EVENTO_MIDIAS)
+        .select("*")
+        .eq("id", midiaId)
+        .eq("evento_id", eventoId)
+        .maybeSingle();
+
+      if (findErr) throw new AppError(findErr.message, 400);
+      if (!existente) throw new AppError(messages.midia.naoEncontrada, 404);
+      return formatarMidiaDto(existente);
+    }
+
     const { data, error } = await supabaseAdmin
       .from(FESTA_TABLES.EVENTO_MIDIAS)
       .update(updatePayload)
@@ -309,7 +313,7 @@ export class MidiaService {
     if (error) throw new AppError(error.message, 500);
     if (!midia) throw new AppError(messages.midia.naoEncontrada, 404);
 
-    await this.removerMidiaEArquivos([midia]);
+    await removerMidiasEArquivosStorage([midia]);
   }
 
   async limparMidiasNaoFixadas(eventoId: string): Promise<number> {
@@ -322,58 +326,14 @@ export class MidiaService {
     if (error) throw new AppError(error.message, 500);
     if (!midias || midias.length === 0) return 0;
 
-    await this.removerMidiaEArquivos(midias);
+    await removerMidiasEArquivosStorage(midias);
     return midias.length;
   }
 
-  private async removerMidiaEArquivos(midias: FestaEventoMidia[]): Promise<void> {
-    const ids = midias.map((m) => m.id);
-    const pathsParaRemover: string[] = [];
-
-    for (const m of midias) {
-      pathsParaRemover.push(m.path);
-      const thumb = m.thumb_path || m.path.replace(/\.jpg$/i, "_t.jpg");
-      if (thumb !== m.path) pathsParaRemover.push(thumb);
-    }
-
-    const { error } = await supabaseAdmin
-      .from(FESTA_TABLES.EVENTO_MIDIAS)
-      .delete()
-      .in("id", ids);
-
-    if (error) throw new AppError(error.message, 500);
-
-    if (pathsParaRemover.length > 0) {
-      await supabaseAdmin.storage.from(FESTA_BUCKETS.MIDIAS).remove(pathsParaRemover);
-    }
-  }
-
-  async obterManifestoDownload(eventoId: string): Promise<ItemManifestoDownloadDto[]> {
-    const { data, error } = await supabaseAdmin
-      .from(FESTA_TABLES.EVENTO_MIDIAS)
-      .select("*")
-      .eq("evento_id", eventoId)
-      .eq("status_moderacao", FESTA_STATUS_MODERACAO.APROVADA)
-      .order("created_at", { ascending: true })
-      .order("id", { ascending: true });
-
-    if (error) throw new AppError(error.message, 500);
-
-    return data.map((midia, idx) => {
-      const numero = String(idx + 1).padStart(3, "0");
-      const sufixoAutor = midia.autor
-        ? `-${midia.autor.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`
-        : "";
-      const extensao = midia.tipo_midia === FESTA_TIPO_MIDIA.VIDEO ? "mp4" : "jpg";
-
-      return {
-        id: midia.id,
-        nome_arquivo: `foto-${numero}${sufixoAutor}.${extensao}`,
-        url_publica: getPublicStorageUrl(FESTA_BUCKETS.MIDIAS, midia.path),
-        autor: midia.autor,
-        created_at: midia.created_at,
-      };
-    });
+  async obterManifestoDownload(
+    eventoId: string
+  ): Promise<ItemManifestoDownloadDto[]> {
+    return montarManifestoDownloadEvento(eventoId);
   }
 
   async gerarStreamZipMidias(
@@ -381,29 +341,7 @@ export class MidiaService {
     slugEvento: string,
     reply: FastifyReply
   ): Promise<void> {
-    const manifesto = await this.obterManifestoDownload(eventoId);
-
-    reply.raw.writeHead(200, {
-      "Content-Type": "application/zip",
-      "Content-Disposition": `attachment; filename="fotos-${slugEvento}.zip"`,
-    });
-
-    const archive = archiver("zip", { zlib: { level: 5 } });
-    archive.pipe(reply.raw);
-
-    for (const item of manifesto) {
-      try {
-        const res = await fetch(item.url_publica);
-        if (res.ok && res.body) {
-          const nodeStream = Readable.fromWeb(res.body as unknown as WebReadableStream);
-          archive.append(nodeStream, { name: item.nome_arquivo });
-        }
-      } catch {
-        continue;
-      }
-    }
-
-    await archive.finalize();
+    return escreverStreamZipMidiasEvento(eventoId, slugEvento, reply);
   }
 }
 

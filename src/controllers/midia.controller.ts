@@ -57,7 +57,10 @@ export class MidiaController {
     const { token, midiaId } = request.params as { token: string; midiaId: string };
     const body = moderarMidiaSchema.parse(request.body);
     const evento = await gestaoEventoService.validarTokenGestao(token);
-    const resultado = await midiaService.moderarMidia(evento.id, midiaId, body);
+    const resultado = await midiaService.moderarMidia(evento.id, midiaId, {
+      status_moderacao: body.status_moderacao,
+      fixada_demo: body.fixada_demo,
+    });
     return reply.status(200).send(resultado);
   }
 
@@ -111,7 +114,10 @@ export class MidiaController {
   async moderarPorEventoAdmin(request: FastifyRequest, reply: FastifyReply) {
     const { eventoId, midiaId } = request.params as { eventoId: string; midiaId: string };
     const body = moderarMidiaSchema.parse(request.body);
-    const resultado = await midiaService.moderarMidia(eventoId, midiaId, body);
+    const resultado = await midiaService.moderarMidia(eventoId, midiaId, {
+      status_moderacao: body.status_moderacao,
+      fixada_demo: body.fixada_demo,
+    });
     return reply.status(200).send(resultado);
   }
 

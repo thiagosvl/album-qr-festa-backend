@@ -8,8 +8,10 @@ import {
 } from "../constants/festa.enum.js";
 import { AppError } from "../errors/AppError.js";
 import type {
+  AtualizarOperadorParceiroInput,
   AtualizarPlanoB2bInput,
   CriarEventoParceiroB2bInput,
+  CriarOperadorParceiroInput,
   RegistrarTransacaoCreditoB2bInput,
   SalvarParceiroB2bInput,
 } from "../schemas/parceiro-b2b.schema.js";
@@ -17,23 +19,39 @@ import type {
   FestaCatalogoPlanoB2b,
   FestaParceiroB2b,
   FestaTemaCatalogo,
+  FestaTipoPerfilEnum,
   FestaTransacaoCreditoB2b,
+  FestaUsuario,
 } from "../types/database.js";
 import type { EventoAdminResponseDto } from "../types/dtos/evento.dto.js";
+import {
+  gerarTokenImpersonateParceiroB2b,
+  obterMapaCredenciaisParceiros,
+  sincronizarCredenciaisParceiroB2b,
+} from "../utils/parceiro-auth.helper.js";
+import {
+  atualizarOperadorParceiroB2b,
+  criarOperadorParceiroB2b,
+  excluirOperadorParceiroB2b,
+  listarOperadoresParceiroB2b,
+} from "../utils/parceiro-operadores.helper.js";
 import { eventoService } from "./evento.service.js";
 
 export interface ParceiroB2bAdminDto extends FestaParceiroB2b {
   plano: FestaCatalogoPlanoB2b | null;
   total_eventos: number;
   transacoes: FestaTransacaoCreditoB2b[];
+  possui_login: boolean;
+  email_acesso: string | null;
 }
 
 export interface PortalParceiroB2bDto {
-  parceiro: ParceiroB2bAdminDto | null;
-  parceiros_disponiveis: FestaParceiroB2b[];
+  parceiro: ParceiroB2bAdminDto;
+  perfil_usuario: FestaTipoPerfilEnum;
   planos_b2b: FestaCatalogoPlanoB2b[];
   eventos: EventoAdminResponseDto[];
   temas: FestaTemaCatalogo[];
+  operadores: FestaUsuario[];
 }
 
 export class ParceiroB2bService {
@@ -44,6 +62,10 @@ export class ParceiroB2bService {
       .order("created_at", { ascending: false });
 
     if (error) throw new AppError(error.message, 500);
+
+    const mapaCredenciais = await obterMapaCredenciaisParceiros(
+      parceiros.map((p) => p.id)
+    );
 
     return Promise.all(
       parceiros.map(async (row) => {
@@ -64,24 +86,30 @@ export class ParceiroB2bService {
           plano: FestaCatalogoPlanoB2b | null;
         };
 
+        const cred = mapaCredenciais.get(row.id);
+
         return {
           ...parceiroPuro,
           plano: plano ?? null,
           total_eventos: count ?? 0,
           transacoes: transacoes ?? [],
+          possui_login: cred?.possui_login ?? false,
+          email_acesso: cred?.email_acesso ?? parceiroPuro.email ?? null,
         };
       })
     );
   }
 
-  async criarParceiro(input: SalvarParceiroB2bInput): Promise<ParceiroB2bAdminDto> {
+  async criarParceiro(
+    input: SalvarParceiroB2bInput
+  ): Promise<ParceiroB2bAdminDto> {
     const { data: criado, error } = await supabaseAdmin
       .from(FESTA_TABLES.PARCEIROS_B2B)
       .insert({
         nome_empresa: input.nome_empresa,
         documento: input.documento ?? null,
         telefone: input.telefone ?? null,
-        email: input.email ?? null,
+        email: input.email?.trim().toLowerCase() ?? null,
         logo_url: input.logo_url ?? null,
         cor_marca: input.cor_marca,
         status_assinatura: input.status_assinatura,
@@ -93,6 +121,8 @@ export class ParceiroB2bService {
       .single();
 
     if (error) throw new AppError(error.message, 400);
+
+    await sincronizarCredenciaisParceiroB2b(criado, input.senha_acesso);
 
     if (input.saldo_creditos > 0) {
       await supabaseAdmin.from(FESTA_TABLES.TRANSACOES_CREDITOS_B2B).insert({
@@ -113,12 +143,23 @@ export class ParceiroB2bService {
     id: string,
     input: Partial<SalvarParceiroB2bInput>
   ): Promise<ParceiroB2bAdminDto> {
-    const { error } = await supabaseAdmin
-      .from(FESTA_TABLES.PARCEIROS_B2B)
-      .update(input)
-      .eq("id", id);
+    const { senha_acesso, ...dadosParceiro } = input;
+    if (dadosParceiro.email !== undefined) {
+      dadosParceiro.email = dadosParceiro.email?.trim().toLowerCase() ?? null;
+    }
 
-    if (error) throw new AppError(error.message, 400);
+    const { data: atualizado, error } = await supabaseAdmin
+      .from(FESTA_TABLES.PARCEIROS_B2B)
+      .update(dadosParceiro)
+      .eq("id", id)
+      .select("*")
+      .single();
+
+    if (error || !atualizado) {
+      throw new AppError(error?.message || "Parceiro não encontrado", 400);
+    }
+
+    await sincronizarCredenciaisParceiroB2b(atualizado, senha_acesso);
 
     const todos = await this.listarParceirosAdmin();
     const encontrado = todos.find((p) => p.id === id);
@@ -191,47 +232,76 @@ export class ParceiroB2bService {
     return data;
   }
 
-  async obterPortalParceiro(parceiroId?: string): Promise<PortalParceiroB2bDto> {
-    const [parceirosAdmin, planosRes, temasRes] = await Promise.all([
-      this.listarParceirosAdmin(),
-      supabaseAdmin
-        .from(FESTA_TABLES.CATALOGO_PLANOS_B2B)
-        .select("*")
-        .order("ordem", { ascending: true }),
-      supabaseAdmin
-        .from(FESTA_TABLES.TEMAS_CATALOGO)
-        .select("*")
-        .eq("ativo", true)
-        .order("ordem", { ascending: true }),
-    ]);
+  async obterPortalParceiro(
+    parceiroId: string,
+    perfilUsuario: FestaTipoPerfilEnum
+  ): Promise<PortalParceiroB2bDto> {
+    const [parceirosAdmin, planosRes, temasRes, todosEventos, operadores] =
+      await Promise.all([
+        this.listarParceirosAdmin(),
+        supabaseAdmin
+          .from(FESTA_TABLES.CATALOGO_PLANOS_B2B)
+          .select("*")
+          .order("ordem", { ascending: true }),
+        supabaseAdmin
+          .from(FESTA_TABLES.TEMAS_CATALOGO)
+          .select("*")
+          .eq("ativo", true)
+          .order("ordem", { ascending: true }),
+        eventoService.listarEventosAdmin({
+          incluir_demo: false,
+        }),
+        listarOperadoresParceiroB2b(parceiroId),
+      ]);
 
     if (planosRes.error) throw new AppError(planosRes.error.message, 500);
     if (temasRes.error) throw new AppError(temasRes.error.message, 500);
 
-    const parceiroSelecionado =
-      (parceiroId
-        ? parceirosAdmin.find((p) => p.id === parceiroId)
-        : parceirosAdmin[0]) ?? null;
-
-    let eventosParceiro: EventoAdminResponseDto[] = [];
-    if (parceiroSelecionado) {
-      const todosEventos = await eventoService.listarEventosAdmin({
-        incluir_demo: false,
-      });
-      eventosParceiro = todosEventos.filter(
-        (ev) => ev.parceiro_id === parceiroSelecionado.id
-      );
+    const parceiroAutenticado = parceirosAdmin.find((p) => p.id === parceiroId);
+    if (!parceiroAutenticado) {
+      throw new AppError("Parceiro B2B não encontrado.", 404);
     }
 
+    const eventosParceiro = todosEventos.filter(
+      (ev) => ev.parceiro_id === parceiroAutenticado.id
+    );
+
     return {
-      parceiro: parceiroSelecionado,
-      parceiros_disponiveis: parceirosAdmin.map(
-        ({ plano: _p, total_eventos: _t, transacoes: _tr, ...puro }) => puro
-      ),
+      parceiro: parceiroAutenticado,
+      perfil_usuario: perfilUsuario,
       planos_b2b: planosRes.data ?? [],
       eventos: eventosParceiro,
       temas: temasRes.data ?? [],
+      operadores,
     };
+  }
+
+  async gerarLinkImpersonateAdmin(
+    parceiroId: string
+  ): Promise<{ tokenHash: string }> {
+    return gerarTokenImpersonateParceiroB2b(parceiroId);
+  }
+
+  async criarOperadorParceiro(
+    parceiroId: string,
+    input: CriarOperadorParceiroInput
+  ): Promise<FestaUsuario> {
+    return criarOperadorParceiroB2b(parceiroId, input);
+  }
+
+  async atualizarOperadorParceiro(
+    parceiroId: string,
+    operadorId: string,
+    input: AtualizarOperadorParceiroInput
+  ): Promise<FestaUsuario> {
+    return atualizarOperadorParceiroB2b(parceiroId, operadorId, input);
+  }
+
+  async excluirOperadorParceiro(
+    parceiroId: string,
+    operadorId: string
+  ): Promise<void> {
+    return excluirOperadorParceiroB2b(parceiroId, operadorId);
   }
 
   async criarEventoComCreditoParceiro(

@@ -21,7 +21,6 @@ export async function createApp(): Promise<FastifyInstance> {
     done();
   });
 
-  // Workaround necessário para ambientes serverless (Vercel) com requisições sem corpo
   app.addHook("onRequest", (request, _reply, done) => {
     if (request.headers["content-length"] === "0") {
       delete request.headers["content-length"];

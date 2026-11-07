@@ -7,4 +7,9 @@ export const env = {
   SUPABASE_URL: process.env.SUPABASE_URL || "",
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || "",
   LOG_LEVEL: process.env.LOG_LEVEL || "info",
+  RESEND_API_KEY: process.env.RESEND_API_KEY || "",
+  RESEND_FROM_EMAIL:
+    process.env.RESEND_FROM_EMAIL ||
+    "Álbum QR Festa <contato@van360.com.br>",
+  RESEND_OVERRIDE_EMAIL: process.env.RESEND_OVERRIDE_EMAIL || "",
 };

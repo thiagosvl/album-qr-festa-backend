@@ -161,6 +161,11 @@ export class MolduraService {
     if (findError) throw new AppError(findError.message, 500);
     if (!moldura) throw new AppError(messages.moldura.naoEncontrada, 404);
 
+    await supabaseAdmin
+      .from(FESTA_TABLES.EVENTO_MIDIAS)
+      .update({ moldura_id: null })
+      .eq("moldura_id", molduraId);
+
     const { error: deleteError } = await supabaseAdmin
       .from(FESTA_TABLES.EVENTO_MOLDURAS)
       .delete()
