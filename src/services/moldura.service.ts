@@ -9,6 +9,7 @@ import type {
 } from "../schemas/moldura.schema.js";
 import type { FestaEventoMoldura } from "../types/database.js";
 import type { MolduraResponseDto } from "../types/dtos/moldura.dto.js";
+import { gestaoEventoService } from "./gestao-evento.service.js";
 
 export function formatarMolduraDto(moldura: FestaEventoMoldura): MolduraResponseDto {
   const isDirectUrl =
@@ -179,6 +180,44 @@ export class MolduraService {
     if (isStoragePath) {
       await supabaseAdmin.storage.from(FESTA_BUCKETS.MIDIAS).remove([moldura.arquivo_path]);
     }
+  }
+
+  async listarPorTokenGestao(token: string): Promise<MolduraResponseDto[]> {
+    const evento = await gestaoEventoService.validarTokenGestao(token);
+    return this.listarPorEvento(evento.id, false);
+  }
+
+  async criarMolduraPorTokenGestao(
+    token: string,
+    input: CriarMolduraEventoInput
+  ): Promise<MolduraResponseDto> {
+    const evento = await gestaoEventoService.validarTokenGestao(token);
+    return this.criarMoldura(evento.id, input);
+  }
+
+  async atualizarMolduraPorTokenGestao(
+    token: string,
+    molduraId: string,
+    input: AtualizarMolduraEventoInput
+  ): Promise<MolduraResponseDto> {
+    const evento = await gestaoEventoService.validarTokenGestao(token);
+    return this.atualizarMoldura(evento.id, molduraId, input);
+  }
+
+  async reordenarMoldurasPorTokenGestao(
+    token: string,
+    input: ReordenarMoldurasInput
+  ): Promise<MolduraResponseDto[]> {
+    const evento = await gestaoEventoService.validarTokenGestao(token);
+    return this.reordenarMolduras(evento.id, input);
+  }
+
+  async excluirMolduraPorTokenGestao(
+    token: string,
+    molduraId: string
+  ): Promise<void> {
+    const evento = await gestaoEventoService.validarTokenGestao(token);
+    return this.excluirMoldura(evento.id, molduraId);
   }
 }
 

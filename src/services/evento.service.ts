@@ -75,14 +75,15 @@ export class EventoService {
     const { data, error } = await query;
     if (error) throw new AppError(error.message, 500);
 
+    const rows = data as EventoComRelacoesRow[];
     return Promise.all(
-      data.map(async (item) => {
+      rows.map(async (item) => {
         const { count } = await supabaseAdmin
           .from(FESTA_TABLES.EVENTO_MIDIAS)
           .select("id", { count: "exact", head: true })
           .eq("evento_id", item.id);
 
-        return mapearEventoAdminDto(item as unknown as EventoComRelacoesRow, count ?? 0);
+        return mapearEventoAdminDto(item, count ?? 0);
       })
     );
   }
@@ -102,7 +103,7 @@ export class EventoService {
       .select("id", { count: "exact", head: true })
       .eq("evento_id", item.id);
 
-    return mapearEventoAdminDto(item as unknown as EventoComRelacoesRow, count ?? 0);
+    return mapearEventoAdminDto(item as EventoComRelacoesRow, count ?? 0);
   }
 
   async criarEventoAdmin(input: CriarEventoAdminInput): Promise<EventoAdminResponseDto> {
@@ -318,7 +319,7 @@ export class EventoService {
   async excluirEventoAdmin(id: string): Promise<void> {
     const atual = await this.obterEventoAdminPorId(id);
     if (atual.is_demo) {
-      throw new AppError("O evento de demonstração oficial não pode ser excluído.", 400);
+      throw new AppError(messages.evento.eventoDemoProtegido, 400);
     }
 
     await limparArquivosERelacoesEvento(id);

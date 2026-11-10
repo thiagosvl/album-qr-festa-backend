@@ -1,14 +1,15 @@
 import { supabaseAdmin } from "../config/supabase.js";
 import {
-  FESTA_METODO_PAGAMENTO,
   FESTA_PACOTE_TIPO,
-  FESTA_STATUS_PEDIDO,
   FESTA_TABLES,
   FESTA_TIPO_TRANSACAO_CREDITO,
 } from "../constants/festa.enum.js";
+import { messages } from "../constants/messages.js";
 import { AppError } from "../errors/AppError.js";
 import type {
   AtualizarOperadorParceiroInput,
+  AtualizarParceiroB2bInput,
+  AtualizarPerfilPortalParceiroInput,
   AtualizarPlanoB2bInput,
   CriarEventoParceiroB2bInput,
   CriarOperadorParceiroInput,
@@ -18,13 +19,17 @@ import type {
 import type {
   FestaCatalogoPlanoB2b,
   FestaParceiroB2b,
-  FestaTemaCatalogo,
   FestaTipoPerfilEnum,
-  FestaTransacaoCreditoB2b,
   FestaUsuario,
 } from "../types/database.js";
 import type { EventoAdminResponseDto } from "../types/dtos/evento.dto.js";
+import type {
+  ImpersonateParceiroResponseDto,
+  ParceiroB2bAdminDto,
+  PortalParceiroB2bDto,
+} from "../types/dtos/parceiro-b2b.dto.js";
 import {
+  enriquecerParceiroB2bAdminDto,
   gerarTokenImpersonateParceiroB2b,
   obterMapaCredenciaisParceiros,
   sincronizarCredenciaisParceiroB2b,
@@ -34,24 +39,15 @@ import {
   criarOperadorParceiroB2b,
   excluirOperadorParceiroB2b,
   listarOperadoresParceiroB2b,
+  montarInputEventoCreditoParceiroB2b,
 } from "../utils/parceiro-operadores.helper.js";
 import { eventoService } from "./evento.service.js";
 
-export interface ParceiroB2bAdminDto extends FestaParceiroB2b {
-  plano: FestaCatalogoPlanoB2b | null;
-  total_eventos: number;
-  transacoes: FestaTransacaoCreditoB2b[];
-  possui_login: boolean;
-  email_acesso: string | null;
-}
-
-export interface PortalParceiroB2bDto {
-  parceiro: ParceiroB2bAdminDto;
-  perfil_usuario: FestaTipoPerfilEnum;
-  planos_b2b: FestaCatalogoPlanoB2b[];
-  eventos: EventoAdminResponseDto[];
-  temas: FestaTemaCatalogo[];
-  operadores: FestaUsuario[];
+function validarParceiroIdObrigatorio(parceiroId: string | null | undefined): string {
+  if (!parceiroId) {
+    throw new AppError(messages.auth.acessoRestritoParceiro, 403);
+  }
+  return parceiroId;
 }
 
 export class ParceiroB2bService {
@@ -68,36 +64,20 @@ export class ParceiroB2bService {
     );
 
     return Promise.all(
-      parceiros.map(async (row) => {
-        const [{ count }, { data: transacoes }] = await Promise.all([
-          supabaseAdmin
-            .from(FESTA_TABLES.EVENTOS)
-            .select("id", { count: "exact", head: true })
-            .eq("parceiro_id", row.id),
-          supabaseAdmin
-            .from(FESTA_TABLES.TRANSACOES_CREDITOS_B2B)
-            .select("*")
-            .eq("parceiro_id", row.id)
-            .order("created_at", { ascending: false })
-            .limit(20),
-        ]);
-
-        const { plano, ...parceiroPuro } = row as FestaParceiroB2b & {
-          plano: FestaCatalogoPlanoB2b | null;
-        };
-
-        const cred = mapaCredenciais.get(row.id);
-
-        return {
-          ...parceiroPuro,
-          plano: plano ?? null,
-          total_eventos: count ?? 0,
-          transacoes: transacoes ?? [],
-          possui_login: cred?.possui_login ?? false,
-          email_acesso: cred?.email_acesso ?? parceiroPuro.email ?? null,
-        };
-      })
+      parceiros.map((row) =>
+        enriquecerParceiroB2bAdminDto(
+          row as FestaParceiroB2b & { plano: FestaCatalogoPlanoB2b | null },
+          mapaCredenciais
+        )
+      )
     );
+  }
+
+  private async obterParceiroAdminPorId(id: string): Promise<ParceiroB2bAdminDto> {
+    const todos = await this.listarParceirosAdmin();
+    const encontrado = todos.find((p) => p.id === id);
+    if (!encontrado) throw new AppError(messages.parceiro.naoEncontrado, 404);
+    return encontrado;
   }
 
   async criarParceiro(
@@ -129,19 +109,16 @@ export class ParceiroB2bService {
         parceiro_id: criado.id,
         tipo: FESTA_TIPO_TRANSACAO_CREDITO.RECARGA_PLANO,
         quantidade: input.saldo_creditos,
-        observacao: "Saldo inicial de créditos na ativação do parceiro B2B",
+        observacao: messages.parceiro.observacaoSaldoInicial,
       });
     }
 
-    const todos = await this.listarParceirosAdmin();
-    const encontrado = todos.find((p) => p.id === criado.id);
-    if (!encontrado) throw new AppError("Parceiro não encontrado", 404);
-    return encontrado;
+    return this.obterParceiroAdminPorId(criado.id);
   }
 
   async atualizarParceiro(
     id: string,
-    input: Partial<SalvarParceiroB2bInput>
+    input: AtualizarParceiroB2bInput
   ): Promise<ParceiroB2bAdminDto> {
     const { senha_acesso, ...dadosParceiro } = input;
     if (dadosParceiro.email !== undefined) {
@@ -156,15 +133,18 @@ export class ParceiroB2bService {
       .single();
 
     if (error || !atualizado) {
-      throw new AppError(error?.message || "Parceiro não encontrado", 400);
+      throw new AppError(error?.message || messages.parceiro.naoEncontrado, 400);
     }
 
     await sincronizarCredenciaisParceiroB2b(atualizado, senha_acesso);
+    return this.obterParceiroAdminPorId(id);
+  }
 
-    const todos = await this.listarParceirosAdmin();
-    const encontrado = todos.find((p) => p.id === id);
-    if (!encontrado) throw new AppError("Parceiro não encontrado", 404);
-    return encontrado;
+  async atualizarPerfilPortal(
+    parceiroId: string | null | undefined,
+    input: AtualizarPerfilPortalParceiroInput
+  ): Promise<ParceiroB2bAdminDto> {
+    return this.atualizarParceiro(validarParceiroIdObrigatorio(parceiroId), input);
   }
 
   async registrarTransacaoCredito(
@@ -178,14 +158,11 @@ export class ParceiroB2bService {
       .maybeSingle();
 
     if (findError) throw new AppError(findError.message, 500);
-    if (!parceiro) throw new AppError("Parceiro B2B não encontrado", 404);
+    if (!parceiro) throw new AppError(messages.parceiro.naoEncontrado, 404);
 
     const ehDebito = input.tipo === FESTA_TIPO_TRANSACAO_CREDITO.CONSUMO_EVENTO;
     if (ehDebito && parceiro.saldo_creditos < input.quantidade) {
-      throw new AppError(
-        "Saldo de créditos insuficiente para realizar este débito.",
-        400
-      );
+      throw new AppError(messages.parceiro.saldoInsuficienteDebito, 400);
     }
 
     const novoSaldo = ehDebito
@@ -209,11 +186,7 @@ export class ParceiroB2bService {
       .eq("id", parceiroId);
 
     if (updError) throw new AppError(updError.message, 400);
-
-    const todos = await this.listarParceirosAdmin();
-    const atualizado = todos.find((p) => p.id === parceiroId);
-    if (!atualizado) throw new AppError("Parceiro não encontrado", 404);
-    return atualizado;
+    return this.obterParceiroAdminPorId(parceiroId);
   }
 
   async atualizarPlanoB2b(
@@ -228,14 +201,16 @@ export class ParceiroB2bService {
       .maybeSingle();
 
     if (error) throw new AppError(error.message, 400);
-    if (!data) throw new AppError("Plano B2B não encontrado", 404);
+    if (!data) throw new AppError(messages.catalogo.planoB2bNaoEncontrado, 404);
     return data;
   }
 
   async obterPortalParceiro(
-    parceiroId: string,
+    parceiroId: string | null | undefined,
     perfilUsuario: FestaTipoPerfilEnum
   ): Promise<PortalParceiroB2bDto> {
+    const idValido = validarParceiroIdObrigatorio(parceiroId);
+
     const [parceirosAdmin, planosRes, temasRes, todosEventos, operadores] =
       await Promise.all([
         this.listarParceirosAdmin(),
@@ -251,19 +226,24 @@ export class ParceiroB2bService {
         eventoService.listarEventosAdmin({
           incluir_demo: false,
         }),
-        listarOperadoresParceiroB2b(parceiroId),
+        listarOperadoresParceiroB2b(idValido),
       ]);
 
     if (planosRes.error) throw new AppError(planosRes.error.message, 500);
     if (temasRes.error) throw new AppError(temasRes.error.message, 500);
 
-    const parceiroAutenticado = parceirosAdmin.find((p) => p.id === parceiroId);
+    const parceiroAutenticado = parceirosAdmin.find((p) => p.id === idValido);
     if (!parceiroAutenticado) {
-      throw new AppError("Parceiro B2B não encontrado.", 404);
+      throw new AppError(messages.parceiro.naoEncontrado, 404);
     }
 
     const eventosParceiro = todosEventos.filter(
       (ev) => ev.parceiro_id === parceiroAutenticado.id
+    );
+
+    const temasDisponiveis = (temasRes.data ?? []).filter(
+      (tema) =>
+        tema.publico || tema.parceiro_proprietario_id === parceiroAutenticado.id
     );
 
     return {
@@ -271,46 +251,50 @@ export class ParceiroB2bService {
       perfil_usuario: perfilUsuario,
       planos_b2b: planosRes.data ?? [],
       eventos: eventosParceiro,
-      temas: temasRes.data ?? [],
+      temas: temasDisponiveis,
       operadores,
     };
   }
 
   async gerarLinkImpersonateAdmin(
     parceiroId: string
-  ): Promise<{ tokenHash: string }> {
+  ): Promise<ImpersonateParceiroResponseDto> {
     return gerarTokenImpersonateParceiroB2b(parceiroId);
   }
 
   async criarOperadorParceiro(
-    parceiroId: string,
+    parceiroId: string | null | undefined,
     input: CriarOperadorParceiroInput
   ): Promise<FestaUsuario> {
-    return criarOperadorParceiroB2b(parceiroId, input);
+    const idValido = validarParceiroIdObrigatorio(parceiroId);
+    return criarOperadorParceiroB2b(idValido, input);
   }
 
   async atualizarOperadorParceiro(
-    parceiroId: string,
+    parceiroId: string | null | undefined,
     operadorId: string,
     input: AtualizarOperadorParceiroInput
   ): Promise<FestaUsuario> {
-    return atualizarOperadorParceiroB2b(parceiroId, operadorId, input);
+    const idValido = validarParceiroIdObrigatorio(parceiroId);
+    return atualizarOperadorParceiroB2b(idValido, operadorId, input);
   }
 
   async excluirOperadorParceiro(
-    parceiroId: string,
+    parceiroId: string | null | undefined,
     operadorId: string
   ): Promise<void> {
-    return excluirOperadorParceiroB2b(parceiroId, operadorId);
+    const idValido = validarParceiroIdObrigatorio(parceiroId);
+    return excluirOperadorParceiroB2b(idValido, operadorId);
   }
 
   async criarEventoComCreditoParceiro(
-    parceiroId: string,
+    parceiroId: string | null | undefined,
     input: CriarEventoParceiroB2bInput
   ): Promise<EventoAdminResponseDto> {
+    const idValido = validarParceiroIdObrigatorio(parceiroId);
     const todos = await this.listarParceirosAdmin();
-    const parceiro = todos.find((p) => p.id === parceiroId);
-    if (!parceiro) throw new AppError("Parceiro B2B não encontrado", 404);
+    const parceiro = todos.find((p) => p.id === idValido);
+    if (!parceiro) throw new AppError(messages.parceiro.naoEncontrado, 404);
 
     const custoCreditos =
       input.pacote === FESTA_PACOTE_TIPO.COMPLETO
@@ -324,40 +308,9 @@ export class ParceiroB2bService {
       );
     }
 
-    const eventoCriado = await eventoService.criarEventoAdmin({
-      slug: input.slug,
-      titulo: input.titulo,
-      subtitulo: input.subtitulo ?? null,
-      boas_vindas: input.boas_vindas ?? null,
-      nome_aniversariante: input.nome_aniversariante ?? null,
-      idade_aniversariante: input.idade_aniversariante ?? null,
-      data_evento: input.data_evento ?? null,
-      cor_primaria: input.cor_primaria,
-      cor_secundaria: input.cor_secundaria,
-      tema_id: input.tema_id ?? null,
-      parceiro_id: parceiro.id,
-      pacote: input.pacote,
-      status_pedido: FESTA_STATUS_PEDIDO.PAGO_COMPLETO,
-      metodo_pagamento: FESTA_METODO_PAGAMENTO.CREDITO_B2B,
-      valor_pacote_centavos: 0,
-      desconto_centavos: 0,
-      valor_sinal_centavos: 0,
-      valor_pago_centavos: 0,
-      galeria_publica: true,
-      moderacao_previa: false,
-      permite_envio_midias: true,
-      tempo_slideshow_segundos: 6,
-      ativo: true,
-      extras: [],
-      anfitriao: input.nome_anfitriao
-        ? {
-            nome: input.nome_anfitriao,
-            telefone: input.telefone_anfitriao ?? null,
-            cpf: null,
-            email: null,
-          }
-        : undefined,
-    });
+    const eventoCriado = await eventoService.criarEventoAdmin(
+      montarInputEventoCreditoParceiroB2b(parceiro.id, input)
+    );
 
     await supabaseAdmin.from(FESTA_TABLES.TRANSACOES_CREDITOS_B2B).insert({
       parceiro_id: parceiro.id,

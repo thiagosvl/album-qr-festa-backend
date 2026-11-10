@@ -4,7 +4,6 @@ import {
   FESTA_RPC,
   FESTA_STATUS_MODERACAO,
   FESTA_TABLES,
-  FESTA_TIPO_MIDIA,
   FESTA_VARIACAO_CURTIDA,
   type FestaVariacaoCurtida,
 } from "../constants/festa.enum.js";
@@ -20,14 +19,19 @@ import type {
 import type {
   ItemManifestoDownloadDto,
   ListaMidiasPaginadaDto,
+  ManifestoDownloadEventoDto,
   MidiaResponseDto,
 } from "../types/dtos/midia.dto.js";
 import {
   escreverStreamZipMidiasEvento,
   formatarMidiaDto,
+  montarListaMidiasPaginada,
   montarManifestoDownloadEvento,
   removerMidiasEArquivosStorage,
+  validarEventoParaEnvioMidia,
 } from "../utils/midia-storage.helper.js";
+import { eventoService } from "./evento.service.js";
+import { gestaoEventoService } from "./gestao-evento.service.js";
 
 export { formatarMidiaDto };
 
@@ -82,47 +86,14 @@ export class MidiaService {
     const { data, error } = await dbQuery;
     if (error) throw new AppError(error.message, 500);
 
-    const temMais = data.length > query.limite;
-    const recortados = temMais ? data.slice(0, query.limite) : data;
-    const proximoCursor =
-      temMais && recortados.length > 0
-        ? recortados[recortados.length - 1].created_at
-        : null;
-
-    return {
-      itens: recortados.map(formatarMidiaDto),
-      proximo_cursor: proximoCursor,
-      tem_mais: temMais,
-    };
+    return montarListaMidiasPaginada(data, query.limite);
   }
 
   async registrarMidiaConvidado(
     slug: string,
     input: RegistrarMidiaConvidadoInput
   ): Promise<MidiaResponseDto> {
-    const { data: evento, error: evError } = await supabaseAdmin
-      .from(FESTA_TABLES.EVENTOS)
-      .select(
-        "id, ativo, permite_envio_midias, permite_video, moderacao_previa, expira_em"
-      )
-      .eq("slug", slug)
-      .maybeSingle();
-
-    if (evError) throw new AppError(evError.message, 500);
-    if (!evento) throw new AppError(messages.evento.naoEncontrado, 404);
-    if (!evento.ativo) throw new AppError(messages.evento.inativo, 403);
-
-    if (evento.expira_em && new Date(evento.expira_em).getTime() < Date.now()) {
-      throw new AppError(messages.evento.expirado, 403);
-    }
-
-    if (!evento.permite_envio_midias) {
-      throw new AppError(messages.evento.envioBloqueado, 403);
-    }
-
-    if (input.tipo_midia === FESTA_TIPO_MIDIA.VIDEO && !evento.permite_video) {
-      throw new AppError(messages.midia.videoNaoPermitido, 403);
-    }
+    const evento = await validarEventoParaEnvioMidia(slug, input.tipo_midia);
 
     const statusModeracao = evento.moderacao_previa
       ? FESTA_STATUS_MODERACAO.PENDENTE
@@ -229,18 +200,7 @@ export class MidiaService {
     const { data, error } = await dbQuery;
     if (error) throw new AppError(error.message, 500);
 
-    const temMais = data.length > query.limite;
-    const recortados = temMais ? data.slice(0, query.limite) : data;
-    const proximoCursor =
-      temMais && recortados.length > 0
-        ? recortados[recortados.length - 1].created_at
-        : null;
-
-    return {
-      itens: recortados.map(formatarMidiaDto),
-      proximo_cursor: proximoCursor,
-      tem_mais: temMais,
-    };
+    return montarListaMidiasPaginada(data, query.limite);
   }
 
   async moderarMidia(
@@ -251,46 +211,28 @@ export class MidiaService {
     const updatePayload: {
       status_moderacao?: ModerarMidiaInput["status_moderacao"];
       fixada_demo?: boolean;
-    } = {};
+    } = {
+      ...(input.status_moderacao !== undefined ? { status_moderacao: input.status_moderacao } : {}),
+      ...(input.fixada_demo !== undefined ? { fixada_demo: input.fixada_demo } : {}),
+    };
 
-    if (input.status_moderacao !== undefined) {
-      updatePayload.status_moderacao = input.status_moderacao;
-    }
-    if (input.fixada_demo !== undefined) {
-      updatePayload.fixada_demo = input.fixada_demo;
-    }
-
-    if (Object.keys(updatePayload).length === 0) {
-      const { data: existente, error: findErr } = await supabaseAdmin
-        .from(FESTA_TABLES.EVENTO_MIDIAS)
-        .select("*")
-        .eq("id", midiaId)
-        .eq("evento_id", eventoId)
-        .maybeSingle();
-
-      if (findErr) throw new AppError(findErr.message, 400);
-      if (!existente) throw new AppError(messages.midia.naoEncontrada, 404);
-      return formatarMidiaDto(existente);
-    }
-
-    const { data, error } = await supabaseAdmin
-      .from(FESTA_TABLES.EVENTO_MIDIAS)
-      .update(updatePayload)
-      .eq("id", midiaId)
-      .eq("evento_id", eventoId)
-      .select("*")
-      .maybeSingle();
+    const queryBase = supabaseAdmin.from(FESTA_TABLES.EVENTO_MIDIAS);
+    const { data, error } =
+      Object.keys(updatePayload).length === 0
+        ? await queryBase.select("*").eq("id", midiaId).eq("evento_id", eventoId).maybeSingle()
+        : await queryBase
+            .update(updatePayload)
+            .eq("id", midiaId)
+            .eq("evento_id", eventoId)
+            .select("*")
+            .maybeSingle();
 
     if (error) throw new AppError(error.message, 400);
     if (!data) throw new AppError(messages.midia.naoEncontrada, 404);
-
     return formatarMidiaDto(data);
   }
 
-  async moderarMidiasEmLote(
-    eventoId: string,
-    input: ModerarMidiasEmLoteInput
-  ): Promise<number> {
+  async moderarMidiasEmLote(eventoId: string, input: ModerarMidiasEmLoteInput): Promise<number> {
     const { data, error } = await supabaseAdmin
       .from(FESTA_TABLES.EVENTO_MIDIAS)
       .update({ status_moderacao: input.status_moderacao })
@@ -312,7 +254,6 @@ export class MidiaService {
 
     if (error) throw new AppError(error.message, 500);
     if (!midia) throw new AppError(messages.midia.naoEncontrada, 404);
-
     await removerMidiasEArquivosStorage([midia]);
   }
 
@@ -330,9 +271,7 @@ export class MidiaService {
     return midias.length;
   }
 
-  async obterManifestoDownload(
-    eventoId: string
-  ): Promise<ItemManifestoDownloadDto[]> {
+  async obterManifestoDownload(eventoId: string): Promise<ItemManifestoDownloadDto[]> {
     return montarManifestoDownloadEvento(eventoId);
   }
 
@@ -342,6 +281,57 @@ export class MidiaService {
     reply: FastifyReply
   ): Promise<void> {
     return escreverStreamZipMidiasEvento(eventoId, slugEvento, reply);
+  }
+
+  async listarMidiasPorTokenGestao(
+    token: string,
+    query: ListagemMidiasGestaoQuery
+  ): Promise<ListaMidiasPaginadaDto> {
+    const { id } = await gestaoEventoService.validarTokenGestao(token);
+    return this.listarMidiasGestao(id, query);
+  }
+
+  async moderarMidiaPorTokenGestao(
+    token: string,
+    midiaId: string,
+    input: ModerarMidiaInput
+  ): Promise<MidiaResponseDto> {
+    const { id } = await gestaoEventoService.validarTokenGestao(token);
+    return this.moderarMidia(id, midiaId, { status_moderacao: input.status_moderacao });
+  }
+
+  async moderarMidiasEmLotePorTokenGestao(
+    token: string,
+    input: ModerarMidiasEmLoteInput
+  ): Promise<number> {
+    const { id } = await gestaoEventoService.validarTokenGestao(token);
+    return this.moderarMidiasEmLote(id, input);
+  }
+
+  async excluirMidiaPorTokenGestao(token: string, midiaId: string): Promise<void> {
+    const { id } = await gestaoEventoService.validarTokenGestao(token);
+    return this.excluirMidiaGestao(id, midiaId);
+  }
+
+  async limparMidiasTestePorTokenGestao(token: string): Promise<number> {
+    const { id } = await gestaoEventoService.validarTokenGestao(token);
+    return this.limparMidiasNaoFixadas(id);
+  }
+
+  async obterManifestoPorTokenGestao(token: string): Promise<ManifestoDownloadEventoDto> {
+    const evento = await gestaoEventoService.validarTokenGestao(token);
+    const itens = await this.obterManifestoDownload(evento.id);
+    return { slug: evento.slug, titulo: evento.titulo, total: itens.length, itens };
+  }
+
+  async baixarZipPorTokenGestao(token: string, reply: FastifyReply): Promise<void> {
+    const { id, slug } = await gestaoEventoService.validarTokenGestao(token);
+    return this.gerarStreamZipMidias(id, slug, reply);
+  }
+
+  async baixarZipPorEventoAdmin(eventoId: string, reply: FastifyReply): Promise<void> {
+    const { id, slug } = await eventoService.obterEventoAdminPorId(eventoId);
+    return this.gerarStreamZipMidias(id, slug, reply);
   }
 }
 

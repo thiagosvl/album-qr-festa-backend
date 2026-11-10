@@ -10,13 +10,8 @@ import type { AuthenticatedFestaRequest } from "../types/request.type.js";
 export class AuthRecuperacaoController {
   async obterSessaoAtual(request: FastifyRequest, reply: FastifyReply) {
     const { festaUsuario } = request as AuthenticatedFestaRequest;
-    return reply.status(200).send({
-      id: festaUsuario.id,
-      nome: festaUsuario.nome,
-      email: festaUsuario.email,
-      tipo_perfil: festaUsuario.tipo_perfil,
-      parceiro_id: festaUsuario.parceiro_id,
-    });
+    const resultado = authRecuperacaoService.formatarSessaoUsuario(festaUsuario);
+    return reply.status(200).send(resultado);
   }
 
   async solicitarRecuperacao(request: FastifyRequest, reply: FastifyReply) {

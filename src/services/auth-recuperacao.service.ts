@@ -7,6 +7,7 @@ import { AppError } from "../errors/AppError.js";
 import type { FestaUsuario } from "../types/database.js";
 import type {
   ResetarSenhaRecuperacaoResponseDto,
+  SessaoUsuarioAutenticadoDto,
   SolicitarRecuperacaoResponseDto,
   ValidarCodigoRecuperacaoResponseDto,
 } from "../types/dtos/auth.dto.js";
@@ -22,13 +23,55 @@ function mascararEmail(email: string): string {
   return `${userPart.slice(0, 2)}***${userPart.slice(-1)}@${domain}`;
 }
 
+async function obterOuProvisionarAdminParceiro(
+  parceiro: Awaited<ReturnType<typeof buscarParceiroAtivoPorEmail>>
+): Promise<FestaUsuario> {
+  if (!parceiro) {
+    throw new AppError(messages.auth.contaRecuperacaoNaoEncontrada, 404);
+  }
+  if (!parceiro.email?.trim()) {
+    throw new AppError(messages.auth.emailAusenteParaRecuperacao, 400);
+  }
+
+  const { data: existente } = await supabaseAdmin
+    .from(FESTA_TABLES.USUARIOS)
+    .select("*")
+    .eq("parceiro_id", parceiro.id)
+    .eq("tipo_perfil", FESTA_TIPO_PERFIL.PARCEIRO_ADMIN)
+    .eq("ativo", true)
+    .maybeSingle();
+
+  if (existente) return garantirAuthUserVinculado(existente);
+
+  const senhaInicial = `Parceiro@${parceiro.id.slice(0, 8)}`;
+  await sincronizarCredenciaisParceiroB2b(parceiro, senhaInicial);
+
+  const { data: criado } = await supabaseAdmin
+    .from(FESTA_TABLES.USUARIOS)
+    .select("*")
+    .eq("parceiro_id", parceiro.id)
+    .eq("tipo_perfil", FESTA_TIPO_PERFIL.PARCEIRO_ADMIN)
+    .maybeSingle();
+
+  if (!criado) throw new AppError(messages.auth.contaRecuperacaoNaoEncontrada, 404);
+  return criado;
+}
+
+async function buscarParceiroAtivoPorEmail(emailLimpo: string) {
+  const { data } = await supabaseAdmin
+    .from(FESTA_TABLES.PARCEIROS_B2B)
+    .select("*")
+    .ilike("email", emailLimpo)
+    .eq("ativo", true)
+    .maybeSingle();
+  return data;
+}
+
 async function resolverUsuarioPorIdentificador(
   identificadorBruto: string
 ): Promise<FestaUsuario> {
   const identificador = identificadorBruto.trim();
-  const isEmail = identificador.includes("@");
-
-  if (isEmail) {
+  if (identificador.includes("@")) {
     const emailLimpo = identificador.toLowerCase();
     const { data: usuarioExistente } = await supabaseAdmin
       .from(FESTA_TABLES.USUARIOS)
@@ -37,34 +80,9 @@ async function resolverUsuarioPorIdentificador(
       .eq("ativo", true)
       .maybeSingle();
 
-    if (usuarioExistente) {
-      return garantirAuthUserVinculado(usuarioExistente);
-    }
-
-    const { data: parceiroPorEmail } = await supabaseAdmin
-      .from(FESTA_TABLES.PARCEIROS_B2B)
-      .select("*")
-      .ilike("email", emailLimpo)
-      .eq("ativo", true)
-      .maybeSingle();
-
-    if (parceiroPorEmail) {
-      const senhaInicial = `Parceiro@${parceiroPorEmail.id.slice(0, 8)}`;
-      await sincronizarCredenciaisParceiroB2b(parceiroPorEmail, senhaInicial);
-
-      const { data: usuarioCriado } = await supabaseAdmin
-        .from(FESTA_TABLES.USUARIOS)
-        .select("*")
-        .eq("parceiro_id", parceiroPorEmail.id)
-        .eq("tipo_perfil", FESTA_TIPO_PERFIL.PARCEIRO_ADMIN)
-        .maybeSingle();
-
-      if (usuarioCriado) {
-        return usuarioCriado;
-      }
-    }
-
-    throw new AppError(messages.auth.contaRecuperacaoNaoEncontrada, 404);
+    if (usuarioExistente) return garantirAuthUserVinculado(usuarioExistente);
+    const parceiroPorEmail = await buscarParceiroAtivoPorEmail(emailLimpo);
+    return obterOuProvisionarAdminParceiro(parceiroPorEmail);
   }
 
   const digitos = identificador.replace(/\D/g, "");
@@ -82,35 +100,7 @@ async function resolverUsuarioPorIdentificador(
   );
 
   if (parceiroMatch) {
-    if (!parceiroMatch.email?.trim()) {
-      throw new AppError(messages.auth.emailAusenteParaRecuperacao, 400);
-    }
-
-    const { data: usuarioAdminParceiro } = await supabaseAdmin
-      .from(FESTA_TABLES.USUARIOS)
-      .select("*")
-      .eq("parceiro_id", parceiroMatch.id)
-      .eq("tipo_perfil", FESTA_TIPO_PERFIL.PARCEIRO_ADMIN)
-      .eq("ativo", true)
-      .maybeSingle();
-
-    if (usuarioAdminParceiro) {
-      return garantirAuthUserVinculado(usuarioAdminParceiro);
-    }
-
-    const senhaInicial = `Parceiro@${parceiroMatch.id.slice(0, 8)}`;
-    await sincronizarCredenciaisParceiroB2b(parceiroMatch, senhaInicial);
-
-    const { data: usuarioCriado } = await supabaseAdmin
-      .from(FESTA_TABLES.USUARIOS)
-      .select("*")
-      .eq("parceiro_id", parceiroMatch.id)
-      .eq("tipo_perfil", FESTA_TIPO_PERFIL.PARCEIRO_ADMIN)
-      .maybeSingle();
-
-    if (usuarioCriado) {
-      return usuarioCriado;
-    }
+    return obterOuProvisionarAdminParceiro(parceiroMatch);
   }
 
   const { data: usuariosComCpf } = await supabaseAdmin
@@ -123,24 +113,15 @@ async function resolverUsuarioPorIdentificador(
     (u) => (u.cpf ?? "").replace(/\D/g, "") === digitos
   );
 
-  if (usuarioPorCpf) {
-    return garantirAuthUserVinculado(usuarioPorCpf);
-  }
-
+  if (usuarioPorCpf) return garantirAuthUserVinculado(usuarioPorCpf);
   throw new AppError(messages.auth.contaRecuperacaoNaoEncontrada, 404);
 }
 
-async function garantirAuthUserVinculado(
-  usuario: FestaUsuario
-): Promise<FestaUsuario> {
-  if (usuario.auth_user_id) {
-    return usuario;
-  }
+async function garantirAuthUserVinculado(usuario: FestaUsuario): Promise<FestaUsuario> {
+  if (usuario.auth_user_id) return usuario;
 
   const emailLimpo = usuario.email?.trim().toLowerCase();
-  if (!emailLimpo) {
-    throw new AppError(messages.auth.emailAusenteParaRecuperacao, 400);
-  }
+  if (!emailLimpo) throw new AppError(messages.auth.emailAusenteParaRecuperacao, 400);
 
   const senhaInicial = `Festa@${usuario.id.slice(0, 8)}`;
   const { data: criadoAuth, error: authErr } =
@@ -151,10 +132,7 @@ async function garantirAuthUserVinculado(
     });
 
   if (authErr || !criadoAuth.user) {
-    throw new AppError(
-      authErr?.message || messages.auth.emailAcessoEmUso,
-      400
-    );
+    throw new AppError(authErr?.message || messages.auth.emailAcessoEmUso, 400);
   }
 
   const { data: atualizado, error: updErr } = await supabaseAdmin
@@ -164,23 +142,25 @@ async function garantirAuthUserVinculado(
     .select("*")
     .single();
 
-  if (updErr || !atualizado) {
-    throw new AppError(messages.sistema.erroInterno, 500);
-  }
-
+  if (updErr || !atualizado) throw new AppError(messages.sistema.erroInterno, 500);
   return atualizado;
 }
 
 class AuthRecuperacaoService {
-  async solicitarRecuperacao(
-    identificador: string
-  ): Promise<SolicitarRecuperacaoResponseDto> {
+  formatarSessaoUsuario(festaUsuario: FestaUsuario): SessaoUsuarioAutenticadoDto {
+    return {
+      id: festaUsuario.id,
+      nome: festaUsuario.nome,
+      email: festaUsuario.email,
+      tipo_perfil: festaUsuario.tipo_perfil,
+      parceiro_id: festaUsuario.parceiro_id,
+    };
+  }
+
+  async solicitarRecuperacao(identificador: string): Promise<SolicitarRecuperacaoResponseDto> {
     const usuario = await resolverUsuarioPorIdentificador(identificador);
     const emailDestino = usuario.email?.trim().toLowerCase();
-
-    if (!emailDestino) {
-      throw new AppError(messages.auth.emailAusenteParaRecuperacao, 400);
-    }
+    if (!emailDestino) throw new AppError(messages.auth.emailAusenteParaRecuperacao, 400);
 
     const { data: ultimoCodigo } = await supabaseAdmin
       .from(FESTA_TABLES.RECUPERACOES_SENHA)
@@ -329,8 +309,7 @@ class AuthRecuperacaoService {
 
     if (loginErr || !loginData.session) {
       throw new AppError(
-        loginErr?.message ||
-          "Senha redefinida, mas não foi possível iniciar a sessão automática.",
+        loginErr?.message || messages.auth.falhaSessaoAutomatica,
         500
       );
     }

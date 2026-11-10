@@ -37,6 +37,23 @@ export async function createApp(): Promise<FastifyInstance> {
     done();
   });
 
+  app.addHook("preValidation", (request, _reply, done) => {
+    if (typeof request.body === "string") {
+      const trimmed = request.body.trim();
+      if (
+        (trimmed.startsWith("{") && trimmed.endsWith("}")) ||
+        (trimmed.startsWith("[") && trimmed.endsWith("]"))
+      ) {
+        try {
+          request.body = JSON.parse(trimmed);
+        } catch {
+          return done();
+        }
+      }
+    }
+    done();
+  });
+
   app.setErrorHandler(globalErrorHandler);
 
   const envOrigins = env.ALLOWED_ORIGINS.split(",")

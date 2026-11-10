@@ -17,4 +17,9 @@ export const atualizarBriefingPaiSchema = z.object({
   tempo_slideshow_segundos: z.number().int().min(3).max(30).optional(),
 });
 
+export const alternarExtraEntregueSchema = z.object({
+  entregue: z.boolean(),
+});
+
 export type AtualizarBriefingPaiInput = z.infer<typeof atualizarBriefingPaiSchema>;
+export type AlternarExtraEntregueInput = z.infer<typeof alternarExtraEntregueSchema>;

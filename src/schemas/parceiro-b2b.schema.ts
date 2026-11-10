@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  FESTA_CORES_PADRAO,
   FESTA_PACOTE_TIPO,
   FESTA_STATUS_ASSINATURA_B2B,
   FESTA_TIPO_TRANSACAO_CREDITO,
@@ -16,7 +17,7 @@ export const salvarParceiroB2bSchema = z.object({
   cor_marca: z
     .string()
     .regex(/^#[0-9a-fA-F]{6}$/)
-    .default("#7c3aed"),
+    .default(FESTA_CORES_PADRAO.PARCEIRO_MARCA),
   status_assinatura: z
     .enum(Constants.public.Enums.festa_status_assinatura_b2b_enum)
     .default(FESTA_STATUS_ASSINATURA_B2B.ATIVA),
@@ -42,6 +43,15 @@ export const atualizarParceiroB2bSchema = z.object({
   plano_b2b_id: z.string().uuid().nullable().optional(),
   saldo_creditos: z.number().int().min(0).optional(),
   ativo: z.boolean().optional(),
+});
+
+export const atualizarPerfilPortalParceiroSchema = atualizarParceiroB2bSchema.pick({
+  nome_empresa: true,
+  documento: true,
+  telefone: true,
+  email: true,
+  cor_marca: true,
+  logo_url: true,
 });
 
 export const registrarTransacaoCreditoB2bSchema = z.object({
@@ -86,11 +96,11 @@ export const criarEventoParceiroB2bSchema = z.object({
   cor_primaria: z
     .string()
     .regex(/^#[0-9a-fA-F]{6}$/)
-    .default("#e6007e"),
+    .default(FESTA_CORES_PADRAO.PRIMARIA),
   cor_secundaria: z
     .string()
     .regex(/^#[0-9a-fA-F]{6}$/)
-    .default("#7c3aed"),
+    .default(FESTA_CORES_PADRAO.PARCEIRO_MARCA),
   nome_anfitriao: z.string().max(100).nullable().optional(),
   telefone_anfitriao: z.string().max(30).nullable().optional(),
 });
@@ -112,6 +122,10 @@ export const atualizarOperadorParceiroSchema = z.object({
 });
 
 export type SalvarParceiroB2bInput = z.infer<typeof salvarParceiroB2bSchema>;
+export type AtualizarParceiroB2bInput = z.infer<typeof atualizarParceiroB2bSchema>;
+export type AtualizarPerfilPortalParceiroInput = z.infer<
+  typeof atualizarPerfilPortalParceiroSchema
+>;
 export type RegistrarTransacaoCreditoB2bInput = z.infer<
   typeof registrarTransacaoCreditoB2bSchema
 >;

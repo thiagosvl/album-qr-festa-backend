@@ -2,11 +2,45 @@ import { supabaseAdmin } from "../config/supabase.js";
 import { FESTA_TABLES, FESTA_TIPO_PERFIL } from "../constants/festa.enum.js";
 import { messages } from "../constants/messages.js";
 import { AppError } from "../errors/AppError.js";
-import type { FestaParceiroB2b } from "../types/database.js";
+import type {
+  FestaCatalogoPlanoB2b,
+  FestaParceiroB2b,
+} from "../types/database.js";
+import type { ParceiroB2bAdminDto } from "../types/dtos/parceiro-b2b.dto.js";
 
 export interface StatusCredencialParceiro {
   possui_login: boolean;
   email_acesso: string | null;
+}
+
+export async function enriquecerParceiroB2bAdminDto(
+  row: FestaParceiroB2b & { plano: FestaCatalogoPlanoB2b | null },
+  mapaCredenciais: Map<string, StatusCredencialParceiro>
+): Promise<ParceiroB2bAdminDto> {
+  const [{ count }, { data: transacoes }] = await Promise.all([
+    supabaseAdmin
+      .from(FESTA_TABLES.EVENTOS)
+      .select("id", { count: "exact", head: true })
+      .eq("parceiro_id", row.id),
+    supabaseAdmin
+      .from(FESTA_TABLES.TRANSACOES_CREDITOS_B2B)
+      .select("*")
+      .eq("parceiro_id", row.id)
+      .order("created_at", { ascending: false })
+      .limit(20),
+  ]);
+
+  const { plano, ...parceiroPuro } = row;
+  const cred = mapaCredenciais.get(row.id);
+
+  return {
+    ...parceiroPuro,
+    plano: plano ?? null,
+    total_eventos: count ?? 0,
+    transacoes: transacoes ?? [],
+    possui_login: cred?.possui_login ?? false,
+    email_acesso: cred?.email_acesso ?? parceiroPuro.email ?? null,
+  };
 }
 
 export async function obterMapaCredenciaisParceiros(
@@ -104,10 +138,7 @@ export async function sincronizarCredenciaisParceiroB2b(
   }
 
   if (!emailLimpo) {
-    throw new AppError(
-      "Informe o e-mail do parceiro B2B para configurar a senha de acesso.",
-      400
-    );
+    throw new AppError(messages.auth.emailParceiroObrigatorioParaSenha, 400);
   }
 
   const { data: criadoAuth, error: createAuthErr } =
@@ -164,7 +195,7 @@ export async function gerarTokenImpersonateParceiroB2b(
     .maybeSingle();
 
   if (findErr || !parceiro) {
-    throw new AppError("Parceiro B2B não encontrado.", 404);
+    throw new AppError(messages.parceiro.naoEncontrado, 404);
   }
 
   const { data: usuarioExistente } = await supabaseAdmin
@@ -184,7 +215,7 @@ export async function gerarTokenImpersonateParceiroB2b(
 
   if (!emailAlvo) {
     throw new AppError(
-      "Este parceiro não possui e-mail cadastrado. Informe o e-mail na edição do parceiro para gerar o link de acesso.",
+      messages.auth.emailParceiroObrigatorioParaImpersonate,
       400
     );
   }
@@ -204,8 +235,7 @@ export async function gerarTokenImpersonateParceiroB2b(
 
   if (linkErr || !data?.properties?.hashed_token) {
     throw new AppError(
-      linkErr?.message ||
-        "Não foi possível gerar o link de acesso para este parceiro.",
+      linkErr?.message || messages.auth.falhaLinkImpersonate,
       500
     );
   }

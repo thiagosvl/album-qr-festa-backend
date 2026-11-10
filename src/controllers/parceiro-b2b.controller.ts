@@ -1,9 +1,8 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { messages } from "../constants/messages.js";
-import { AppError } from "../errors/AppError.js";
 import {
   atualizarOperadorParceiroSchema,
   atualizarParceiroB2bSchema,
+  atualizarPerfilPortalParceiroSchema,
   atualizarPlanoB2bSchema,
   criarEventoParceiroB2bSchema,
   criarOperadorParceiroSchema,
@@ -12,15 +11,6 @@ import {
 } from "../schemas/parceiro-b2b.schema.js";
 import { parceiroB2bService } from "../services/parceiro-b2b.service.js";
 import type { AuthenticatedFestaRequest } from "../types/request.type.js";
-
-function extrairParceiroIdAutenticado(request: FastifyRequest): string {
-  const typedReq = request as AuthenticatedFestaRequest;
-  const parceiroId = typedReq.festaUsuario?.parceiro_id;
-  if (!parceiroId) {
-    throw new AppError(messages.auth.acessoRestritoParceiro, 403);
-  }
-  return parceiroId;
-}
 
 export class ParceiroB2bController {
   async listarAdmin(_request: FastifyRequest, reply: FastifyReply) {
@@ -71,11 +61,10 @@ export class ParceiroB2bController {
   }
 
   async obterPortalParceiro(request: FastifyRequest, reply: FastifyReply) {
-    const parceiroId = extrairParceiroIdAutenticado(request);
-    const typedReq = request as AuthenticatedFestaRequest;
+    const { festaUsuario } = request as AuthenticatedFestaRequest;
     const resultado = await parceiroB2bService.obterPortalParceiro(
-      parceiroId,
-      typedReq.festaUsuario.tipo_perfil
+      festaUsuario.parceiro_id,
+      festaUsuario.tipo_perfil
     );
     return reply.status(200).send(resultado);
   }
@@ -84,19 +73,10 @@ export class ParceiroB2bController {
     request: FastifyRequest,
     reply: FastifyReply
   ) {
-    const parceiroId = extrairParceiroIdAutenticado(request);
-    const body = atualizarParceiroB2bSchema
-      .pick({
-        nome_empresa: true,
-        documento: true,
-        telefone: true,
-        email: true,
-        cor_marca: true,
-        logo_url: true,
-      })
-      .parse(request.body);
-    const resultado = await parceiroB2bService.atualizarParceiro(
-      parceiroId,
+    const { festaUsuario } = request as AuthenticatedFestaRequest;
+    const body = atualizarPerfilPortalParceiroSchema.parse(request.body);
+    const resultado = await parceiroB2bService.atualizarPerfilPortal(
+      festaUsuario.parceiro_id,
       body
     );
     return reply.status(200).send(resultado);
@@ -106,10 +86,10 @@ export class ParceiroB2bController {
     request: FastifyRequest,
     reply: FastifyReply
   ) {
-    const parceiroId = extrairParceiroIdAutenticado(request);
+    const { festaUsuario } = request as AuthenticatedFestaRequest;
     const body = criarEventoParceiroB2bSchema.parse(request.body);
     const resultado = await parceiroB2bService.criarEventoComCreditoParceiro(
-      parceiroId,
+      festaUsuario.parceiro_id,
       body
     );
     return reply.status(201).send(resultado);
@@ -119,10 +99,10 @@ export class ParceiroB2bController {
     request: FastifyRequest,
     reply: FastifyReply
   ) {
-    const parceiroId = extrairParceiroIdAutenticado(request);
+    const { festaUsuario } = request as AuthenticatedFestaRequest;
     const body = criarOperadorParceiroSchema.parse(request.body);
     const resultado = await parceiroB2bService.criarOperadorParceiro(
-      parceiroId,
+      festaUsuario.parceiro_id,
       body
     );
     return reply.status(201).send(resultado);
@@ -132,11 +112,11 @@ export class ParceiroB2bController {
     request: FastifyRequest,
     reply: FastifyReply
   ) {
-    const parceiroId = extrairParceiroIdAutenticado(request);
+    const { festaUsuario } = request as AuthenticatedFestaRequest;
     const { operadorId } = request.params as { operadorId: string };
     const body = atualizarOperadorParceiroSchema.parse(request.body);
     const resultado = await parceiroB2bService.atualizarOperadorParceiro(
-      parceiroId,
+      festaUsuario.parceiro_id,
       operadorId,
       body
     );
@@ -147,9 +127,12 @@ export class ParceiroB2bController {
     request: FastifyRequest,
     reply: FastifyReply
   ) {
-    const parceiroId = extrairParceiroIdAutenticado(request);
+    const { festaUsuario } = request as AuthenticatedFestaRequest;
     const { operadorId } = request.params as { operadorId: string };
-    await parceiroB2bService.excluirOperadorParceiro(parceiroId, operadorId);
+    await parceiroB2bService.excluirOperadorParceiro(
+      festaUsuario.parceiro_id,
+      operadorId
+    );
     return reply.status(204).send();
   }
 }

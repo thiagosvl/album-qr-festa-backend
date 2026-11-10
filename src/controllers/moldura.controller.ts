@@ -4,7 +4,6 @@ import {
   criarMolduraEventoSchema,
   reordenarMoldurasSchema,
 } from "../schemas/moldura.schema.js";
-import { gestaoEventoService } from "../services/gestao-evento.service.js";
 import { molduraService } from "../services/moldura.service.js";
 
 export class MolduraController {
@@ -53,16 +52,14 @@ export class MolduraController {
 
   async listarPorTokenGestao(request: FastifyRequest, reply: FastifyReply) {
     const { token } = request.params as { token: string };
-    const evento = await gestaoEventoService.validarTokenGestao(token);
-    const resultado = await molduraService.listarPorEvento(evento.id, false);
+    const resultado = await molduraService.listarPorTokenGestao(token);
     return reply.status(200).send(resultado);
   }
 
   async criarPorTokenGestao(request: FastifyRequest, reply: FastifyReply) {
     const { token } = request.params as { token: string };
     const body = criarMolduraEventoSchema.parse(request.body);
-    const evento = await gestaoEventoService.validarTokenGestao(token);
-    const resultado = await molduraService.criarMoldura(evento.id, body);
+    const resultado = await molduraService.criarMolduraPorTokenGestao(token, body);
     return reply.status(201).send(resultado);
   }
 
@@ -72,9 +69,8 @@ export class MolduraController {
       molduraId: string;
     };
     const body = atualizarMolduraEventoSchema.parse(request.body);
-    const evento = await gestaoEventoService.validarTokenGestao(token);
-    const resultado = await molduraService.atualizarMoldura(
-      evento.id,
+    const resultado = await molduraService.atualizarMolduraPorTokenGestao(
+      token,
       molduraId,
       body
     );
@@ -84,8 +80,7 @@ export class MolduraController {
   async reordenarPorTokenGestao(request: FastifyRequest, reply: FastifyReply) {
     const { token } = request.params as { token: string };
     const body = reordenarMoldurasSchema.parse(request.body);
-    const evento = await gestaoEventoService.validarTokenGestao(token);
-    const resultado = await molduraService.reordenarMolduras(evento.id, body);
+    const resultado = await molduraService.reordenarMoldurasPorTokenGestao(token, body);
     return reply.status(200).send(resultado);
   }
 
@@ -94,8 +89,7 @@ export class MolduraController {
       token: string;
       molduraId: string;
     };
-    const evento = await gestaoEventoService.validarTokenGestao(token);
-    await molduraService.excluirMoldura(evento.id, molduraId);
+    await molduraService.excluirMolduraPorTokenGestao(token, molduraId);
     return reply.status(204).send();
   }
 }

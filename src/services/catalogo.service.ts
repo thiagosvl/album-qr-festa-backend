@@ -3,7 +3,9 @@ import { FESTA_TABLES } from "../constants/festa.enum.js";
 import { messages } from "../constants/messages.js";
 import { AppError } from "../errors/AppError.js";
 import type {
+  AtualizarExtraB2cInput,
   AtualizarPacoteB2cInput,
+  AtualizarTemaCatalogoInput,
   SalvarExtraB2cInput,
   SalvarTemaCatalogoInput,
 } from "../schemas/catalogo.schema.js";
@@ -115,7 +117,7 @@ export class CatalogoService {
 
   async atualizarExtraB2c(
     id: string,
-    input: Partial<SalvarExtraB2cInput>
+    input: AtualizarExtraB2cInput
   ): Promise<FestaCatalogoExtraB2c> {
     const { data, error } = await supabaseAdmin
       .from(FESTA_TABLES.CATALOGO_EXTRAS_B2C)
@@ -142,7 +144,7 @@ export class CatalogoService {
 
   async atualizarTemaCatalogo(
     id: string,
-    input: Partial<SalvarTemaCatalogoInput>
+    input: AtualizarTemaCatalogoInput
   ): Promise<FestaTemaCatalogo> {
     const { data, error } = await supabaseAdmin
       .from(FESTA_TABLES.TEMAS_CATALOGO)

@@ -9,12 +9,46 @@ import {
   FESTA_TABLES,
   FESTA_TIPO_MIDIA,
 } from "../constants/festa.enum.js";
+import { messages } from "../constants/messages.js";
 import { AppError } from "../errors/AppError.js";
+import type { RegistrarMidiaConvidadoInput } from "../schemas/midia.schema.js";
 import type { FestaEventoMidia } from "../types/database.js";
 import type {
   ItemManifestoDownloadDto,
+  ListaMidiasPaginadaDto,
   MidiaResponseDto,
 } from "../types/dtos/midia.dto.js";
+
+export async function validarEventoParaEnvioMidia(
+  slug: string,
+  tipoMidia: RegistrarMidiaConvidadoInput["tipo_midia"]
+) {
+  const { data: evento, error: evError } = await supabaseAdmin
+    .from(FESTA_TABLES.EVENTOS)
+    .select(
+      "id, ativo, permite_envio_midias, permite_video, moderacao_previa, expira_em"
+    )
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (evError) throw new AppError(evError.message, 500);
+  if (!evento) throw new AppError(messages.evento.naoEncontrado, 404);
+  if (!evento.ativo) throw new AppError(messages.evento.inativo, 403);
+
+  if (evento.expira_em && new Date(evento.expira_em).getTime() < Date.now()) {
+    throw new AppError(messages.evento.expirado, 403);
+  }
+
+  if (!evento.permite_envio_midias) {
+    throw new AppError(messages.evento.envioBloqueado, 403);
+  }
+
+  if (tipoMidia === FESTA_TIPO_MIDIA.VIDEO && !evento.permite_video) {
+    throw new AppError(messages.midia.videoNaoPermitido, 403);
+  }
+
+  return evento;
+}
 
 export function formatarMidiaDto(midia: FestaEventoMidia): MidiaResponseDto {
   const thumbPath = midia.thumb_path || midia.path.replace(/\.jpg$/i, "_t.jpg");
@@ -23,6 +57,24 @@ export function formatarMidiaDto(midia: FestaEventoMidia): MidiaResponseDto {
     ...midia,
     url_publica: getPublicStorageUrl(FESTA_BUCKETS.MIDIAS, midia.path),
     url_miniatura: getPublicStorageUrl(FESTA_BUCKETS.MIDIAS, thumbPath),
+  };
+}
+
+export function montarListaMidiasPaginada(
+  data: FestaEventoMidia[],
+  limite: number
+): ListaMidiasPaginadaDto {
+  const temMais = data.length > limite;
+  const recortados = temMais ? data.slice(0, limite) : data;
+  const proximoCursor =
+    temMais && recortados.length > 0
+      ? recortados[recortados.length - 1].created_at
+      : null;
+
+  return {
+    itens: recortados.map(formatarMidiaDto),
+    proximo_cursor: proximoCursor,
+    tem_mais: temMais,
   };
 }
 

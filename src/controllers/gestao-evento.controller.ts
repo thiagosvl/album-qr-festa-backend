@@ -1,11 +1,9 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { z } from "zod";
-import { atualizarBriefingPaiSchema } from "../schemas/gestao.schema.js";
+import {
+  alternarExtraEntregueSchema,
+  atualizarBriefingPaiSchema,
+} from "../schemas/gestao.schema.js";
 import { gestaoEventoService } from "../services/gestao-evento.service.js";
-
-const alternarExtraSchema = z.object({
-  entregue: z.boolean(),
-});
 
 export class GestaoEventoController {
   async obterPorToken(request: FastifyRequest, reply: FastifyReply) {
@@ -26,7 +24,7 @@ export class GestaoEventoController {
       eventoId: string;
       extraEventoId: string;
     };
-    const { entregue } = alternarExtraSchema.parse(request.body);
+    const { entregue } = alternarExtraEntregueSchema.parse(request.body);
     const resultado = await gestaoEventoService.alternarExtraEntregue(
       eventoId,
       extraEventoId,

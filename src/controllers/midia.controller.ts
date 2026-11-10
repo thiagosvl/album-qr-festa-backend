@@ -7,8 +7,6 @@ import {
   moderarMidiasEmLoteSchema,
   registrarMidiaConvidadoSchema,
 } from "../schemas/midia.schema.js";
-import { eventoService } from "../services/evento.service.js";
-import { gestaoEventoService } from "../services/gestao-evento.service.js";
 import { midiaService } from "../services/midia.service.js";
 
 export class MidiaController {
@@ -48,60 +46,45 @@ export class MidiaController {
   async listarPorTokenGestao(request: FastifyRequest, reply: FastifyReply) {
     const { token } = request.params as { token: string };
     const query = listagemMidiasGestaoQuerySchema.parse(request.query);
-    const evento = await gestaoEventoService.validarTokenGestao(token);
-    const resultado = await midiaService.listarMidiasGestao(evento.id, query);
+    const resultado = await midiaService.listarMidiasPorTokenGestao(token, query);
     return reply.status(200).send(resultado);
   }
 
   async moderarPorTokenGestao(request: FastifyRequest, reply: FastifyReply) {
     const { token, midiaId } = request.params as { token: string; midiaId: string };
     const body = moderarMidiaSchema.parse(request.body);
-    const evento = await gestaoEventoService.validarTokenGestao(token);
-    const resultado = await midiaService.moderarMidia(evento.id, midiaId, {
-      status_moderacao: body.status_moderacao,
-      fixada_demo: body.fixada_demo,
-    });
+    const resultado = await midiaService.moderarMidiaPorTokenGestao(token, midiaId, body);
     return reply.status(200).send(resultado);
   }
 
   async moderarEmLotePorTokenGestao(request: FastifyRequest, reply: FastifyReply) {
     const { token } = request.params as { token: string };
     const body = moderarMidiasEmLoteSchema.parse(request.body);
-    const evento = await gestaoEventoService.validarTokenGestao(token);
-    const atualizadas = await midiaService.moderarMidiasEmLote(evento.id, body);
+    const atualizadas = await midiaService.moderarMidiasEmLotePorTokenGestao(token, body);
     return reply.status(200).send({ atualizadas });
   }
 
   async excluirPorTokenGestao(request: FastifyRequest, reply: FastifyReply) {
     const { token, midiaId } = request.params as { token: string; midiaId: string };
-    const evento = await gestaoEventoService.validarTokenGestao(token);
-    await midiaService.excluirMidiaGestao(evento.id, midiaId);
+    await midiaService.excluirMidiaPorTokenGestao(token, midiaId);
     return reply.status(204).send();
   }
 
   async limparMidiasTestePorTokenGestao(request: FastifyRequest, reply: FastifyReply) {
     const { token } = request.params as { token: string };
-    const evento = await gestaoEventoService.validarTokenGestao(token);
-    const removidas = await midiaService.limparMidiasNaoFixadas(evento.id);
+    const removidas = await midiaService.limparMidiasTestePorTokenGestao(token);
     return reply.status(200).send({ removidas });
   }
 
   async obterManifestoPorTokenGestao(request: FastifyRequest, reply: FastifyReply) {
     const { token } = request.params as { token: string };
-    const evento = await gestaoEventoService.validarTokenGestao(token);
-    const itens = await midiaService.obterManifestoDownload(evento.id);
-    return reply.status(200).send({
-      slug: evento.slug,
-      titulo: evento.titulo,
-      total: itens.length,
-      itens,
-    });
+    const resultado = await midiaService.obterManifestoPorTokenGestao(token);
+    return reply.status(200).send(resultado);
   }
 
   async baixarZipPorTokenGestao(request: FastifyRequest, reply: FastifyReply) {
     const { token } = request.params as { token: string };
-    const evento = await gestaoEventoService.validarTokenGestao(token);
-    await midiaService.gerarStreamZipMidias(evento.id, evento.slug, reply);
+    await midiaService.baixarZipPorTokenGestao(token, reply);
   }
 
   async listarPorEventoAdmin(request: FastifyRequest, reply: FastifyReply) {
@@ -114,10 +97,7 @@ export class MidiaController {
   async moderarPorEventoAdmin(request: FastifyRequest, reply: FastifyReply) {
     const { eventoId, midiaId } = request.params as { eventoId: string; midiaId: string };
     const body = moderarMidiaSchema.parse(request.body);
-    const resultado = await midiaService.moderarMidia(eventoId, midiaId, {
-      status_moderacao: body.status_moderacao,
-      fixada_demo: body.fixada_demo,
-    });
+    const resultado = await midiaService.moderarMidia(eventoId, midiaId, body);
     return reply.status(200).send(resultado);
   }
 
@@ -142,8 +122,7 @@ export class MidiaController {
 
   async baixarZipPorEventoAdmin(request: FastifyRequest, reply: FastifyReply) {
     const { eventoId } = request.params as { eventoId: string };
-    const evento = await eventoService.obterEventoAdminPorId(eventoId);
-    await midiaService.gerarStreamZipMidias(evento.id, evento.slug, reply);
+    await midiaService.baixarZipPorEventoAdmin(eventoId, reply);
   }
 }
 

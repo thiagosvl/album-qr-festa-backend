@@ -18,3 +18,10 @@ export interface ItemManifestoDownloadDto {
   autor: string | null;
   created_at: string;
 }
+
+export interface ManifestoDownloadEventoDto {
+  slug: string;
+  titulo: string;
+  total: number;
+  itens: ItemManifestoDownloadDto[];
+}

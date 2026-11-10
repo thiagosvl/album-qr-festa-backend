@@ -124,4 +124,5 @@ export type FestaTipoBaixaPagamento =
 export const FESTA_CORES_PADRAO = {
   PRIMARIA: "#e6007e",
   SECUNDARIA: "#7b3fe4",
+  PARCEIRO_MARCA: "#7c3aed",
 } as const;

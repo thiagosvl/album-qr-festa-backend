@@ -110,4 +110,6 @@ export const atualizarTemaCatalogoSchema = z.object({
 
 export type AtualizarPacoteB2cInput = z.infer<typeof atualizarPacoteB2cSchema>;
 export type SalvarExtraB2cInput = z.infer<typeof salvarExtraB2cSchema>;
+export type AtualizarExtraB2cInput = z.infer<typeof atualizarExtraB2cSchema>;
 export type SalvarTemaCatalogoInput = z.infer<typeof salvarTemaCatalogoSchema>;
+export type AtualizarTemaCatalogoInput = z.infer<typeof atualizarTemaCatalogoSchema>;

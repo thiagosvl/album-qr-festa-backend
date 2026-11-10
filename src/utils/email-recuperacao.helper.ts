@@ -1,5 +1,6 @@
 import { env } from "../config/env.js";
 import { logger } from "../config/logger.js";
+import { messages } from "../constants/messages.js";
 import { AppError } from "../errors/AppError.js";
 
 function montarHtmlRecuperacaoSenha(params: {
@@ -84,10 +85,7 @@ export async function dispararEmailRecuperacaoSenha(params: {
       { status: response.status, errorText },
       "Falha ao enviar e-mail de recuperação via Resend"
     );
-    throw new AppError(
-      "Não foi possível enviar o e-mail de recuperação no momento. Tente novamente em instantes.",
-      502
-    );
+    throw new AppError(messages.auth.falhaEnvioEmailRecuperacao, 502);
   }
 
   return { enviadoPorEmail: true };

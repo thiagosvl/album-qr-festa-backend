@@ -100,6 +100,8 @@ export async function verifyFestaUsuarioAutenticado(
   }
 }
 
+export const verifySupabaseJwt = verifyFestaUsuarioAutenticado;
+
 export async function verifyFestaAdmin(
   request: FastifyRequest,
   reply: FastifyReply
