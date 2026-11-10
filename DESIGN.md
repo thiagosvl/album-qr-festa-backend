@@ -1,11 +1,11 @@
-# Ui — Style Reference (Álbum QR Festa)
+# Ui — Style Reference (Festalgia)
 > clinical blueprint on frosted paper + dynamic festive theme overrides for guest views
 
 **Theme:** light (Admin, Painel do Pai, Painel B2B & Landing Page) + Dynamic Event Theme (`--cor1`, `--cor2` on `/e/:slug` and `/telao/:slug`)
 
 Source measurements are normalized; roles and recommendations are interpreted. Font summary lists are independent, not paired by position. HTML examples are reconstructions, not source components.
 
-shadcn/ui is a monochromatic design-system workshop: pure white canvas, soft warm-gray surfaces, and large-radius cards floating on hairline borders. For **Álbum QR Festa**, the SaaS panels (Admin, Host Management, B2B Partner) use **Festive Violet (`#7c3aed`)** as the primary action accent and **Midnight Plum (`#130d1e`)** for navigation sidebars, while the Guest App (`/e/:slug`) and Live Screen (`/telao/:slug`) dynamically inject the event's custom primary and secondary colors (`--cor1`, `--cor2`) and friendly display typography (`Fredoka` / `Geist`).
+shadcn/ui is a monochromatic design-system workshop: pure white canvas, soft warm-gray surfaces, and large-radius cards floating on hairline borders. For **Festalgia**, the SaaS panels (Admin, Host Management, B2B Partner) use **Festive Violet (`#7c3aed`)** as the primary action accent and **Midnight Plum (`#130d1e`)** for navigation sidebars, while the Guest App (`/e/:slug`) and Live Screen (`/telao/:slug`) dynamically inject the event's custom primary and secondary colors (`--cor1`, `--cor2`) and friendly display typography (`Fredoka` / `Geist`).
 
 ## Tokens — Colors
 
@@ -18,9 +18,9 @@ shadcn/ui is a monochromatic design-system workshop: pure white canvas, soft war
 | Ink Soft | `#171717` | `--color-ink-soft` | Secondary text on light surfaces |
 | Mid Gray | `#737373` | `--color-mid-gray` | Muted body text, placeholder text, helper labels, icon fills at rest |
 | Hairline | `#e5e5e5` | `--color-hairline` | Borders, input outlines, card edges, badge outlines |
-| Primary | `#7c3aed` | `--color-primary` | Primary actions, CTA buttons, active state accents (Álbum QR Festa Violet, hover `#6d28d9`) |
+| Primary | `#7c3aed` | `--color-primary` | Primary actions, CTA buttons, active state accents (Festalgia Violet, hover `#6d28d9`) |
 | Accent Rose | `#e11d48` | `--color-accent-rose` | Secondary festive highlight for badges, demo tags, and celebratory accents |
-| Midnight Plum | `#130d1e` | `--color-midnight-plum` | Official Álbum QR Festa dark anchor for desktop and mobile navigation sidebars |
+| Midnight Plum | `#130d1e` | `--color-midnight-plum` | Official Festalgia dark anchor for desktop and mobile navigation sidebars |
 | Ember | `#e7000b` | `--color-ember` | Red decorative accent for destructive actions and error states |
 
 ## Tokens — Typography
@@ -76,7 +76,7 @@ shadcn/ui is a monochromatic design-system workshop: pure white canvas, soft war
 ### Primary Filled Button
 **Role:** High-emphasis action (Submit, Save, Create)
 
-Background `var(--primary)` (`#7c3aed`, Álbum QR Festa Violet, hover `#6d28d9`), text `#ffffff`, border none, radius 18px, padding 0px 12px (compact) or 8px 16px (comfortable), font 14px Geist weight 500. Height ≈ 36–40px.
+Background `var(--primary)` (`#7c3aed`, Festalgia Violet, hover `#6d28d9`), text `#ffffff`, border none, radius 18px, padding 0px 12px (compact) or 8px 16px (comfortable), font 14px Geist weight 500. Height ≈ 36–40px.
 
 ### Soft Tonal Button (`variant="tonal"` / `variant="soft"`)
 **Role:** Medium-emphasis actions that repeat across multiple rows in tables or lists (e.g. Gerar QR Code, Baixar ZIP, Moderar)

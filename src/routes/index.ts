@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { adminRoutes } from "./admin.routes.js";
 import { authRoutes } from "./auth.routes.js";
+import { NOME_SERVICO_API } from "../constants/marca.js";
 import { gestaoRoutes } from "./gestao.routes.js";
 import { parceiroRoutes } from "./parceiro.routes.js";
 import { publicRoutes } from "./public.routes.js";
@@ -8,7 +9,7 @@ import { publicRoutes } from "./public.routes.js";
 export default async function routes(app: FastifyInstance) {
   app.get("/health", async () => ({
     status: "ok",
-    service: "album-qr-festa-backend",
+    service: NOME_SERVICO_API,
     timestamp: new Date().toISOString(),
   }));
 
