@@ -1,7 +1,7 @@
 {
-  "name": "album-qr-festa-backend",
+  "name": "festalgia-backend",
   "version": "1.0.0",
-  "description": "Backend API da plataforma Álbum QR Festa (Fastify + TypeScript + Zod + Supabase)",
+  "description": "Backend API da plataforma Festalgia (Fastify + TypeScript + Zod + Supabase)",
   "main": "dist/server.js",
   "type": "module",
   "scripts": {

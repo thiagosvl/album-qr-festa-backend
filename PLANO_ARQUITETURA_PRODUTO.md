@@ -1,4 +1,4 @@
-# Álbum QR Festa — Documento Mestre de Negócio, Arquitetura e Plano de Execução
+# Festalgia — Documento Mestre de Negócio, Arquitetura e Plano de Execução
 
 > **Status:** Alinhado e aprovado em 04/11/2026.  
 > **Objetivo deste documento:** Servir como fonte única da verdade (Single Source of Truth) para os chats de desenvolvimento no Antigravity fora do workspace do VAN 360.
@@ -7,7 +7,7 @@
 
 ## 1. Visão do Produto e Modelo de Negócio
 
-**Álbum QR Festa** (nome provisório) é uma plataforma SaaS (B2C e B2B) de álbum de fotos e vídeos ao vivo por QR Code para festas infantis, 15 anos, casamentos e eventos corporativos/sociais.
+**Festalgia** é uma plataforma SaaS (B2C e B2B) de álbum de fotos e vídeos ao vivo por QR Code para festas infantis, 15 anos, casamentos e eventos corporativos/sociais.
 
 ### 1.1 Referência Funcional (Piloto Existente)
 - **Repositório do Piloto:** `c:\Users\thiag\Desktop\PROJETOS\galeria-festa`

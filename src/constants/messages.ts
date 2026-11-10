@@ -1,8 +1,10 @@
+import { NOME_MARCA } from "./marca.js";
+
 export const messages = {
   auth: {
     tokenAusente: "Token de autenticação ausente ou inválido.",
     tokenInvalido: "Sessão inválida ou expirada.",
-    usuarioNaoEncontrado: "Perfil não registrado no Álbum QR Festa.",
+    usuarioNaoEncontrado: `Perfil não registrado na ${NOME_MARCA}.`,
     usuarioInativo: "Esta conta está inativa.",
     acessoRestritoAdmin: "Acesso restrito a administradores da plataforma.",
     acessoRestritoParceiro: "Acesso restrito a parceiros B2B credenciados.",

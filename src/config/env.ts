@@ -1,3 +1,5 @@
+import { NOME_MARCA } from "../constants/marca.js";
+
 export const env = {
   PORT: Number(process.env.PORT) || 3005,
   NODE_ENV: process.env.NODE_ENV || "development",
@@ -10,6 +12,6 @@ export const env = {
   RESEND_API_KEY: process.env.RESEND_API_KEY || "",
   RESEND_FROM_EMAIL:
     process.env.RESEND_FROM_EMAIL ||
-    "Álbum QR Festa <contato@van360.com.br>",
+    `${NOME_MARCA} <contato@van360.com.br>`,
   RESEND_OVERRIDE_EMAIL: process.env.RESEND_OVERRIDE_EMAIL || "",
 };

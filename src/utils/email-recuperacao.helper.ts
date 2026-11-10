@@ -2,6 +2,7 @@ import { env } from "../config/env.js";
 import { logger } from "../config/logger.js";
 import { messages } from "../constants/messages.js";
 import { AppError } from "../errors/AppError.js";
+import { NOME_MARCA } from "../constants/marca.js";
 
 function montarHtmlRecuperacaoSenha(params: {
   nome: string;
@@ -12,12 +13,12 @@ function montarHtmlRecuperacaoSenha(params: {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Recuperação de Senha — Álbum QR Festa</title>
+  <title>Recuperação de Senha — ${NOME_MARCA}</title>
 </head>
 <body style="margin:0;padding:0;background-color:#faf7f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1b1525;">
   <div style="max-width:560px;margin:28px auto;background:#ffffff;border:1px solid #ece6f4;border-radius:20px;overflow:hidden;">
     <div style="background:linear-gradient(135deg,#e6007e,#7b3fe4);padding:28px 32px;text-align:center;">
-      <p style="margin:0;color:#ffffff;font-size:18px;font-weight:800;letter-spacing:0.04em;">Álbum QR Festa</p>
+      <p style="margin:0;color:#ffffff;font-size:18px;font-weight:800;letter-spacing:0.04em;">${NOME_MARCA}</p>
       <p style="margin:6px 0 0;color:rgba(255,255,255,0.88);font-size:13px;">Recuperação de Acesso</p>
     </div>
     <div style="padding:32px;">
@@ -71,7 +72,7 @@ export async function dispararEmailRecuperacaoSenha(params: {
     body: JSON.stringify({
       from: env.RESEND_FROM_EMAIL,
       to: [destinatarioFinal],
-      subject: `${params.codigo} é seu código de recuperação Álbum QR Festa`,
+      subject: `${params.codigo} é seu código de recuperação ${NOME_MARCA}`,
       html: montarHtmlRecuperacaoSenha({
         nome: params.nome,
         codigo: params.codigo,
