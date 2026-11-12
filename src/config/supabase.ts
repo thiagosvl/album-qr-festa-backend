@@ -1,14 +1,27 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { env } from "./env.js";
+import { logger } from "./logger.js";
 import type { Database } from "../types/database.types.js";
 
-if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
-  throw new Error("Variáveis SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY não encontradas");
+const supabaseUrl =
+  env.SUPABASE_URL.trim() || "https://placeholder.supabase.co";
+const supabaseServiceRoleKey =
+  env.SUPABASE_SERVICE_ROLE_KEY.trim() || "placeholder-service-role-key";
+
+if (
+  !env.SUPABASE_URL.trim() ||
+  !env.SUPABASE_SERVICE_ROLE_KEY.trim() ||
+  env.SUPABASE_URL.includes("PLACEHOLDER") ||
+  env.SUPABASE_SERVICE_ROLE_KEY.includes("PLACEHOLDER")
+) {
+  logger.warn(
+    "SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY ausente ou com placeholder. Configure o arquivo .env com as credenciais reais do Supabase da Festalgia."
+  );
 }
 
 export const supabaseAdmin: SupabaseClient<Database> = createClient<Database>(
-  env.SUPABASE_URL,
-  env.SUPABASE_SERVICE_ROLE_KEY,
+  supabaseUrl,
+  supabaseServiceRoleKey,
   {
     auth: {
       persistSession: false,
@@ -17,5 +30,6 @@ export const supabaseAdmin: SupabaseClient<Database> = createClient<Database>(
 );
 
 export function getPublicStorageUrl(bucket: string, path: string): string {
-  return `${env.SUPABASE_URL}/storage/v1/object/public/${bucket}/${path}`;
+  return `${supabaseUrl}/storage/v1/object/public/${bucket}/${path}`;
 }
+

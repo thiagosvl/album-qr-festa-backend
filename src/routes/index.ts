@@ -7,11 +7,14 @@ import { parceiroRoutes } from "./parceiro.routes.js";
 import { publicRoutes } from "./public.routes.js";
 
 export default async function routes(app: FastifyInstance) {
-  app.get("/health", async () => ({
+  const healthHandler = async () => ({
     status: "ok",
     service: NOME_SERVICO_API,
     timestamp: new Date().toISOString(),
-  }));
+  });
+
+  app.get("/health", healthHandler);
+  app.get("/api/health", healthHandler);
 
   await app.register(authRoutes, { prefix: "/api/auth" });
   await app.register(publicRoutes, { prefix: "/api/public" });

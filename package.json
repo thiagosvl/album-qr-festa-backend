@@ -2,13 +2,14 @@
   "name": "festalgia-backend",
   "version": "1.0.0",
   "description": "Backend API da plataforma Festalgia (Fastify + TypeScript + Zod + Supabase)",
-  "main": "dist/server.js",
+  "main": "dist/src/server.js",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "start": "node dist/server.js",
+    "start": "node dist/src/server.js",
     "build": "tsc",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "deploy": "git pull && npm install && npm run build && pm2 reload festalgia-api --update-env"
   },
   "dependencies": {
     "@fastify/cors": "11.1.0",

@@ -13,6 +13,8 @@ export async function createApp(): Promise<FastifyInstance> {
   const app = Fastify({
     loggerInstance: logger as unknown as FastifyBaseLogger,
     disableRequestLogging: true,
+    trustProxy: true,
+    bodyLimit: 104857600,
   });
 
   app.addHook("onResponse", (request, reply, done) => {
@@ -65,6 +67,9 @@ export async function createApp(): Promise<FastifyInstance> {
     "http://localhost:4321",
     "http://localhost:8080",
     "http://localhost:3000",
+    "https://app.festalgia.com.br",
+    "https://www.festalgia.com.br",
+    "https://festalgia.com.br",
   ];
 
   const allowedOrigins = Array.from(new Set([...envOrigins, ...defaultOrigins]));
@@ -72,7 +77,12 @@ export async function createApp(): Promise<FastifyInstance> {
   await app.register(fastifyCors, {
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin) || allowedOrigins.includes("*")) {
+      if (
+        allowedOrigins.includes(origin) ||
+        allowedOrigins.includes("*") ||
+        origin.endsWith(".festalgia.com.br") ||
+        origin === "https://festalgia.com.br"
+      ) {
         return callback(null, true);
       }
       if (env.NODE_ENV === "production") {
