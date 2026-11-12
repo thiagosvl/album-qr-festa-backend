@@ -30,6 +30,7 @@ import {
   removerMidiasEArquivosStorage,
   validarEventoParaEnvioMidia,
 } from "../utils/midia-storage.helper.js";
+import { buscarEventoPorIdentificadorPublico } from "../utils/evento-produtos.helper.js";
 import { eventoService } from "./evento.service.js";
 import { gestaoEventoService } from "./gestao-evento.service.js";
 
@@ -40,15 +41,12 @@ export class MidiaService {
     slug: string,
     query: ListagemMidiasPublicaQuery
   ): Promise<ListaMidiasPaginadaDto> {
-    const { data: evento, error: evError } = await supabaseAdmin
-      .from(FESTA_TABLES.EVENTOS)
-      .select("id, ativo, galeria_publica, is_demo, expira_em")
-      .eq("slug", slug)
-      .maybeSingle();
-
-    if (evError) throw new AppError(evError.message, 500);
+    const evento = await buscarEventoPorIdentificadorPublico(slug);
     if (!evento) throw new AppError(messages.evento.naoEncontrado, 404);
     if (!evento.ativo) throw new AppError(messages.evento.inativo, 403);
+    if (!evento.inclui_galeria) {
+      throw new AppError(messages.evento.galeriaNaoContratada, 403);
+    }
 
     if (evento.expira_em && new Date(evento.expira_em).getTime() < Date.now()) {
       return { itens: [], proximo_cursor: null, tem_mais: false };
@@ -152,12 +150,7 @@ export class MidiaService {
     midiaId: string,
     sessaoId: string
   ): Promise<void> {
-    const { data: evento } = await supabaseAdmin
-      .from(FESTA_TABLES.EVENTOS)
-      .select("id")
-      .eq("slug", slug)
-      .maybeSingle();
-
+    const evento = await buscarEventoPorIdentificadorPublico(slug);
     if (!evento) throw new AppError(messages.evento.naoEncontrado, 404);
 
     const { data: midia, error } = await supabaseAdmin

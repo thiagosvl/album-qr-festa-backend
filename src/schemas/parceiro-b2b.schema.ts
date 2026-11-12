@@ -6,6 +6,12 @@ import {
   FESTA_TIPO_TRANSACAO_CREDITO,
 } from "../constants/festa.enum.js";
 import { Constants } from "../types/database.types.js";
+import { camposConviteEventoSchema } from "./evento.schema.js";
+
+export const itemExtraParceiroB2bSchema = z.object({
+  extra_id: z.string().uuid(),
+  quantidade: z.number().int().min(1).max(50).default(1),
+});
 
 export const salvarParceiroB2bSchema = z.object({
   nome_empresa: z.string().min(2).max(120),
@@ -73,37 +79,76 @@ export const atualizarPlanoB2bSchema = z.object({
   ativo: z.boolean().optional(),
 });
 
-export const criarEventoParceiroB2bSchema = z.object({
-  slug: z
-    .string()
-    .min(2)
-    .max(80)
-    .regex(/^[a-z0-9-]+$/),
-  titulo: z.string().min(2).max(120),
-  subtitulo: z.string().max(160).nullable().optional(),
-  boas_vindas: z.string().max(300).nullable().optional(),
-  nome_aniversariante: z.string().max(100).nullable().optional(),
-  idade_aniversariante: z.string().max(40).nullable().optional(),
-  data_evento: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/)
-    .nullable()
-    .optional(),
-  pacote: z
-    .enum(Constants.public.Enums.festa_pacote_tipo_enum)
-    .default(FESTA_PACOTE_TIPO.COMPLETO),
-  tema_id: z.string().uuid().nullable().optional(),
-  cor_primaria: z
-    .string()
-    .regex(/^#[0-9a-fA-F]{6}$/)
-    .default(FESTA_CORES_PADRAO.PRIMARIA),
-  cor_secundaria: z
-    .string()
-    .regex(/^#[0-9a-fA-F]{6}$/)
-    .default(FESTA_CORES_PADRAO.PARCEIRO_MARCA),
-  nome_anfitriao: z.string().max(100).nullable().optional(),
-  telefone_anfitriao: z.string().max(30).nullable().optional(),
-});
+export const criarEventoParceiroB2bSchema = z
+  .object({
+    slug: z
+      .string()
+      .min(2)
+      .max(80)
+      .regex(/^[a-z0-9-]+$/)
+      .optional(),
+    titulo: z.string().min(2).max(120),
+    subtitulo: z.string().max(160).nullable().optional(),
+    boas_vindas: z.string().max(300).nullable().optional(),
+    nome_aniversariante: z.string().max(100).nullable().optional(),
+    idade_aniversariante: z.string().max(40).nullable().optional(),
+    data_evento: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .nullable()
+      .optional(),
+    pacote: z
+      .enum(Constants.public.Enums.festa_pacote_tipo_enum)
+      .default(FESTA_PACOTE_TIPO.BASICO),
+    modulos: z
+      .array(z.enum(Constants.public.Enums.festa_codigo_modulo_enum))
+      .min(1)
+      .optional(),
+    extras: z.array(itemExtraParceiroB2bSchema).default([]),
+    tema_id: z.string().uuid().nullable().optional(),
+    cor_primaria: z
+      .string()
+      .regex(/^#[0-9a-fA-F]{6}$/)
+      .default(FESTA_CORES_PADRAO.PRIMARIA),
+    cor_secundaria: z
+      .string()
+      .regex(/^#[0-9a-fA-F]{6}$/)
+      .default(FESTA_CORES_PADRAO.PARCEIRO_MARCA),
+    nome_anfitriao: z.string().max(100).nullable().optional(),
+    telefone_anfitriao: z.string().max(30).nullable().optional(),
+  })
+  .merge(camposConviteEventoSchema);
+
+export const atualizarEventoParceiroB2bSchema = z
+  .object({
+    titulo: z.string().min(2).max(120).optional(),
+    subtitulo: z.string().max(160).nullable().optional(),
+    boas_vindas: z.string().max(300).nullable().optional(),
+    nome_aniversariante: z.string().max(100).nullable().optional(),
+    idade_aniversariante: z.string().max(40).nullable().optional(),
+    data_evento: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .nullable()
+      .optional(),
+    modulos: z
+      .array(z.enum(Constants.public.Enums.festa_codigo_modulo_enum))
+      .min(1)
+      .optional(),
+    extras: z.array(itemExtraParceiroB2bSchema).optional(),
+    tema_id: z.string().uuid().nullable().optional(),
+    cor_primaria: z
+      .string()
+      .regex(/^#[0-9a-fA-F]{6}$/)
+      .optional(),
+    cor_secundaria: z
+      .string()
+      .regex(/^#[0-9a-fA-F]{6}$/)
+      .optional(),
+    nome_anfitriao: z.string().max(100).nullable().optional(),
+    telefone_anfitriao: z.string().max(30).nullable().optional(),
+  })
+  .merge(camposConviteEventoSchema);
 
 export const criarOperadorParceiroSchema = z.object({
   nome: z.string().min(2).max(120),
@@ -132,6 +177,9 @@ export type RegistrarTransacaoCreditoB2bInput = z.infer<
 export type AtualizarPlanoB2bInput = z.infer<typeof atualizarPlanoB2bSchema>;
 export type CriarEventoParceiroB2bInput = z.infer<
   typeof criarEventoParceiroB2bSchema
+>;
+export type AtualizarEventoParceiroB2bInput = z.infer<
+  typeof atualizarEventoParceiroB2bSchema
 >;
 export type CriarOperadorParceiroInput = z.infer<
   typeof criarOperadorParceiroSchema

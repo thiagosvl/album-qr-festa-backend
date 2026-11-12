@@ -13,6 +13,7 @@ import {
   calcularDataExpiracaoGaleria,
   calcularEfeitosExtrasEvento,
 } from "../utils/evento-calculos.helper.js";
+import { gerarSlugEventoPorTitulo } from "../utils/evento-produtos.helper.js";
 import { formatarMolduraDto } from "./moldura.service.js";
 
 export class GestaoEventoService {
@@ -35,6 +36,7 @@ export class GestaoEventoService {
         `
         *,
         anfitriao:festa_usuarios(id, nome, telefone, email),
+        produtos:festa_evento_produtos(*),
         extras:festa_evento_extras(*),
         molduras:festa_evento_molduras(*)
       `
@@ -45,29 +47,43 @@ export class GestaoEventoService {
     if (error) throw new AppError(error.message, 500);
     if (!item) throw new AppError(messages.evento.tokenGestaoInvalido, 404);
 
-    const [aprovadasRes, pendentesRes, ocultasRes] = await Promise.all([
-      supabaseAdmin
-        .from(FESTA_TABLES.EVENTO_MIDIAS)
-        .select("id", { count: "exact", head: true })
-        .eq("evento_id", item.id)
-        .eq("status_moderacao", FESTA_STATUS_MODERACAO.APROVADA),
-      supabaseAdmin
-        .from(FESTA_TABLES.EVENTO_MIDIAS)
-        .select("id", { count: "exact", head: true })
-        .eq("evento_id", item.id)
-        .eq("status_moderacao", FESTA_STATUS_MODERACAO.PENDENTE),
-      supabaseAdmin
-        .from(FESTA_TABLES.EVENTO_MIDIAS)
-        .select("id", { count: "exact", head: true })
-        .eq("evento_id", item.id)
-        .eq("status_moderacao", FESTA_STATUS_MODERACAO.OCULTA),
-    ]);
+    const [aprovadasRes, pendentesRes, ocultasRes, confirmacoesRes] =
+      await Promise.all([
+        supabaseAdmin
+          .from(FESTA_TABLES.EVENTO_MIDIAS)
+          .select("id", { count: "exact", head: true })
+          .eq("evento_id", item.id)
+          .eq("status_moderacao", FESTA_STATUS_MODERACAO.APROVADA),
+        supabaseAdmin
+          .from(FESTA_TABLES.EVENTO_MIDIAS)
+          .select("id", { count: "exact", head: true })
+          .eq("evento_id", item.id)
+          .eq("status_moderacao", FESTA_STATUS_MODERACAO.PENDENTE),
+        supabaseAdmin
+          .from(FESTA_TABLES.EVENTO_MIDIAS)
+          .select("id", { count: "exact", head: true })
+          .eq("evento_id", item.id)
+          .eq("status_moderacao", FESTA_STATUS_MODERACAO.OCULTA),
+        supabaseAdmin
+          .from(FESTA_TABLES.EVENTO_CONFIRMACOES)
+          .select("adultos, criancas")
+          .eq("evento_id", item.id),
+      ]);
 
     const aprovadas = aprovadasRes.count ?? 0;
     const pendentes = pendentesRes.count ?? 0;
     const ocultas = ocultasRes.count ?? 0;
 
+    const listaConfirmacoes = confirmacoesRes.data ?? [];
+    let totalAdultos = 0;
+    let totalCriancas = 0;
+    for (const c of listaConfirmacoes) {
+      totalAdultos += c.adultos;
+      totalCriancas += c.criancas;
+    }
+
     const anfitriao = item.anfitriao ?? null;
+    const produtos = item.produtos ?? [];
     const extras = item.extras ?? [];
     const molduras = [...(item.molduras ?? [])]
       .sort((a, b) => a.ordem - b.ordem)
@@ -75,6 +91,7 @@ export class GestaoEventoService {
 
     const {
       anfitriao: _anf,
+      produtos: _prod,
       extras: _ext,
       molduras: _mold,
       ...eventoPuro
@@ -83,6 +100,7 @@ export class GestaoEventoService {
     return {
       evento: eventoPuro,
       anfitriao,
+      produtos,
       extras,
       molduras,
       resumo_midias: {
@@ -90,6 +108,12 @@ export class GestaoEventoService {
         aprovadas,
         pendentes,
         ocultas,
+      },
+      resumo_confirmacoes: {
+        total_pessoas: totalAdultos + totalCriancas,
+        total_adultos: totalAdultos,
+        total_criancas: totalCriancas,
+        total_grupos: listaConfirmacoes.length,
       },
       valor_restante_centavos: Math.max(
         0,
@@ -106,21 +130,21 @@ export class GestaoEventoService {
 
     let novaExpiracao: string | undefined;
     if (input.data_evento !== undefined && input.data_evento !== evento.data_evento) {
-      const [{ data: pacoteBase }, { data: extrasContratados }] = await Promise.all([
+      const [{ data: prodGaleria }, { data: extrasContratados }] = await Promise.all([
         supabaseAdmin
-          .from(FESTA_TABLES.CATALOGO_PACOTES_B2C)
-          .select("dias_galeria_ativa")
-          .eq("tipo_pacote", evento.pacote)
+          .from(FESTA_TABLES.CATALOGO_PRODUTOS)
+          .select("dias_validade_base")
+          .eq("codigo_modulo", "GALERIA")
           .maybeSingle(),
         supabaseAdmin
           .from(FESTA_TABLES.EVENTO_EXTRAS)
-          .select("extra_id, nome, quantidade, preco_unitario_centavos, entregue")
+          .select("extra_id, nome, quantidade, preco_unitario_centavos, custo_creditos_b2b, entregue")
           .eq("evento_id", evento.id),
       ]);
 
       const efeitos = await calcularEfeitosExtrasEvento(extrasContratados ?? []);
       const diasTotais =
-        (pacoteBase?.dias_galeria_ativa ?? 90) + efeitos.diasGaleriaAdicionais;
+        (prodGaleria?.dias_validade_base ?? 90) + efeitos.diasGaleriaAdicionais;
       novaExpiracao = calcularDataExpiracaoGaleria(input.data_evento, diasTotais);
     }
 
@@ -133,6 +157,9 @@ export class GestaoEventoService {
       .from(FESTA_TABLES.EVENTOS)
       .update({
         ...input,
+        ...(input.titulo && !evento.is_demo
+          ? { slug: gerarSlugEventoPorTitulo(input.titulo) }
+          : {}),
         ...(novaExpiracao !== undefined ? { expira_em: novaExpiracao } : {}),
         ...(deveAvancarStatus ? { status_pedido: FESTA_STATUS_PEDIDO.EM_MONTAGEM } : {}),
       })

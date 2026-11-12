@@ -1,5 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { catalogoController } from "../controllers/catalogo.controller.js";
+import { conviteController } from "../controllers/convite.controller.js";
 import { eventoController } from "../controllers/evento.controller.js";
 import { midiaController } from "../controllers/midia.controller.js";
 import { uploadController } from "../controllers/upload.controller.js";
@@ -10,6 +11,14 @@ export async function publicRoutes(app: FastifyInstance) {
   app.get(
     "/eventos/:slug",
     eventoController.obterPublicoPorSlug.bind(eventoController)
+  );
+  app.get(
+    "/eventos/:slug/convite",
+    conviteController.obterPublicoPorSlug.bind(conviteController)
+  );
+  app.post(
+    "/eventos/:slug/confirmacoes",
+    conviteController.registrarConfirmacaoPublica.bind(conviteController)
   );
   app.get(
     "/eventos/:slug/midias",

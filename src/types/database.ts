@@ -1,5 +1,9 @@
 import type { Tables, TablesInsert, TablesUpdate, Enums } from "./database.types.js";
 
+export type FestaCatalogoProduto = Tables<"festa_catalogo_produtos">;
+export type FestaCatalogoProdutoInsert = TablesInsert<"festa_catalogo_produtos">;
+export type FestaCatalogoProdutoUpdate = TablesUpdate<"festa_catalogo_produtos">;
+
 export type FestaCatalogoPacoteB2c = Tables<"festa_catalogo_pacotes_b2c">;
 export type FestaCatalogoPacoteB2cInsert = TablesInsert<"festa_catalogo_pacotes_b2c">;
 export type FestaCatalogoPacoteB2cUpdate = TablesUpdate<"festa_catalogo_pacotes_b2c">;
@@ -31,6 +35,14 @@ export type FestaEvento = Tables<"festa_eventos">;
 export type FestaEventoInsert = TablesInsert<"festa_eventos">;
 export type FestaEventoUpdate = TablesUpdate<"festa_eventos">;
 
+export type FestaEventoProduto = Tables<"festa_evento_produtos">;
+export type FestaEventoProdutoInsert = TablesInsert<"festa_evento_produtos">;
+export type FestaEventoProdutoUpdate = TablesUpdate<"festa_evento_produtos">;
+
+export type FestaEventoConfirmacao = Tables<"festa_evento_confirmacoes">;
+export type FestaEventoConfirmacaoInsert = TablesInsert<"festa_evento_confirmacoes">;
+export type FestaEventoConfirmacaoUpdate = TablesUpdate<"festa_evento_confirmacoes">;
+
 export type FestaEventoExtra = Tables<"festa_evento_extras">;
 export type FestaEventoExtraInsert = TablesInsert<"festa_evento_extras">;
 export type FestaEventoExtraUpdate = TablesUpdate<"festa_evento_extras">;
@@ -57,3 +69,4 @@ export type FestaTipoTransacaoCreditoEnum = Enums<"festa_tipo_transacao_credito_
 export type FestaCategoriaTemaEnum = Enums<"festa_categoria_tema_enum">;
 export type FestaEfeitoExtraEnum = Enums<"festa_efeito_extra_enum">;
 export type FestaMetodoPagamentoEnum = Enums<"festa_metodo_pagamento_enum">;
+export type FestaCodigoModuloEnum = Enums<"festa_codigo_modulo_enum">;

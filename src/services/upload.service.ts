@@ -1,6 +1,4 @@
 import { getPublicStorageUrl, gerarUrlUploadAssinada } from "../config/r2.js";
-import { supabaseAdmin } from "../config/supabase.js";
-import { FESTA_TABLES } from "../constants/festa.enum.js";
 import { messages } from "../constants/messages.js";
 import { AppError } from "../errors/AppError.js";
 import {
@@ -8,8 +6,13 @@ import {
   UPLOAD_TIPOS_PERMITIDOS,
   type SolicitarUploadInput,
 } from "../schemas/upload.schema.js";
+import { buscarEventoPorIdentificadorPublico } from "../utils/evento-produtos.helper.js";
 
-export const PREFIXOS_UPLOAD_AUTENTICADO = ["parceiros", "catalogo"] as const;
+export const PREFIXOS_UPLOAD_AUTENTICADO = [
+  "parceiros",
+  "catalogo",
+  "convite-rascunho",
+] as const;
 
 export interface UploadAssinadoDto {
   upload_url: string;
@@ -56,13 +59,7 @@ export class UploadService {
       throw new AppError(messages.upload.caminhoNaoPermitido, 403);
     }
 
-    const { data: evento, error } = await supabaseAdmin
-      .from(FESTA_TABLES.EVENTOS)
-      .select("id, ativo")
-      .eq("slug", slug)
-      .maybeSingle();
-
-    if (error) throw new AppError(error.message, 500);
+    const evento = await buscarEventoPorIdentificadorPublico(slug);
     if (!evento) throw new AppError(messages.evento.naoEncontrado, 404);
     if (!evento.ativo) throw new AppError(messages.evento.inativo, 403);
 

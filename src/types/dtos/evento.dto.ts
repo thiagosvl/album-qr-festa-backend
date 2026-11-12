@@ -2,6 +2,7 @@ import type {
   FestaEvento,
   FestaEventoExtra,
   FestaEventoMoldura,
+  FestaEventoProduto,
   FestaTemaCatalogo,
   FestaUsuario,
 } from "../database.js";
@@ -17,6 +18,7 @@ export interface MolduraPublicaDto {
 
 export interface EventoPublicoResponseDto {
   id: string;
+  codigo_url: string;
   slug: string;
   titulo: string;
   subtitulo: string | null;
@@ -28,6 +30,8 @@ export interface EventoPublicoResponseDto {
   cor_secundaria: string;
   capa_url: string | null;
   pacote: FestaEvento["pacote"];
+  inclui_galeria: boolean;
+  inclui_convite: boolean;
   inclui_telao: boolean;
   galeria_publica: boolean;
   moderacao_previa: boolean;
@@ -43,15 +47,18 @@ export interface EventoPublicoResponseDto {
 export interface EventoAdminResponseDto extends FestaEvento {
   anfitriao: FestaUsuario | null;
   tema: FestaTemaCatalogo | null;
+  produtos: FestaEventoProduto[];
   extras: FestaEventoExtra[];
   molduras: MolduraPublicaDto[];
   total_midias: number;
+  total_confirmados_pessoas: number;
   valor_restante_centavos: number;
 }
 
 export interface EventoGestaoResponseDto {
   evento: FestaEvento;
   anfitriao: Pick<FestaUsuario, "id" | "nome" | "telefone" | "email"> | null;
+  produtos: FestaEventoProduto[];
   extras: FestaEventoExtra[];
   molduras: MolduraPublicaDto[];
   resumo_midias: {
@@ -59,6 +66,12 @@ export interface EventoGestaoResponseDto {
     aprovadas: number;
     pendentes: number;
     ocultas: number;
+  };
+  resumo_confirmacoes: {
+    total_pessoas: number;
+    total_adultos: number;
+    total_criancas: number;
+    total_grupos: number;
   };
   valor_restante_centavos: number;
 }

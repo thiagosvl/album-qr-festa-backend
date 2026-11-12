@@ -1,4 +1,5 @@
 import type { FastifyInstance } from "fastify";
+import { conviteController } from "../controllers/convite.controller.js";
 import { gestaoEventoController } from "../controllers/gestao-evento.controller.js";
 import { midiaController } from "../controllers/midia.controller.js";
 import { molduraController } from "../controllers/moldura.controller.js";
@@ -8,6 +9,23 @@ export async function gestaoRoutes(app: FastifyInstance) {
   app.patch(
     "/:token/briefing",
     gestaoEventoController.atualizarBriefing.bind(gestaoEventoController)
+  );
+
+  app.get(
+    "/:token/confirmacoes",
+    conviteController.listarPorTokenGestao.bind(conviteController)
+  );
+  app.post(
+    "/:token/confirmacoes",
+    conviteController.criarPorTokenGestao.bind(conviteController)
+  );
+  app.patch(
+    "/:token/confirmacoes/:confirmacaoId",
+    conviteController.atualizarPorTokenGestao.bind(conviteController)
+  );
+  app.delete(
+    "/:token/confirmacoes/:confirmacaoId",
+    conviteController.excluirPorTokenGestao.bind(conviteController)
   );
 
   app.get("/:token/midias", midiaController.listarPorTokenGestao.bind(midiaController));

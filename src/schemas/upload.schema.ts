@@ -8,6 +8,11 @@ export const UPLOAD_TIPOS_PERMITIDOS = {
   "video/mp4": ["mp4"],
   "video/quicktime": ["mov"],
   "video/webm": ["webm"],
+  "audio/mpeg": ["mp3"],
+  "audio/mp3": ["mp3"],
+  "audio/wav": ["wav"],
+  "audio/ogg": ["ogg"],
+  "audio/mp4": ["m4a"],
 } as const;
 
 export const UPLOAD_LIMITE_BYTES_IMAGEM = 25 * 1024 * 1024;

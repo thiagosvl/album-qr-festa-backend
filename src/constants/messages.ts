@@ -43,6 +43,12 @@ export const messages = {
     galeriaPrivada: "A galeria deste evento é privada e exclusiva para os anfitriões.",
     tokenGestaoInvalido: "Link de gestão inválido ou expirado.",
     eventoDemoProtegido: "O evento de demonstração oficial não pode ser excluído.",
+    conviteNaoContratado: "O convite interativo não está habilitado para este evento.",
+    galeriaNaoContratada: "A galeria de fotos não está habilitada para este evento.",
+  },
+  convite: {
+    confirmacaoNaoEncontrada: "Confirmação de presença não encontrada.",
+    primeiroAdultoObrigatorio: "Informe o nome do responsável pela confirmação.",
   },
   moldura: {
     naoEncontrada: "Moldura não encontrada.",
@@ -59,6 +65,7 @@ export const messages = {
     caminhoNaoPermitido: "Caminho de upload não permitido.",
   },
   catalogo: {
+    produtoNaoEncontrado: "Produto não encontrado no catálogo.",
     pacoteNaoEncontrado: "Pacote não encontrado no catálogo.",
     extraNaoEncontrado: "Item extra não encontrado no catálogo.",
     temaNaoEncontrado: "Tema não encontrado no catálogo.",

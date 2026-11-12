@@ -1,5 +1,6 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import {
+  atualizarEventoParceiroB2bSchema,
   atualizarOperadorParceiroSchema,
   atualizarParceiroB2bSchema,
   atualizarPerfilPortalParceiroSchema,
@@ -93,6 +94,21 @@ export class ParceiroB2bController {
       body
     );
     return reply.status(201).send(resultado);
+  }
+
+  async atualizarEventoPortalParceiro(
+    request: FastifyRequest,
+    reply: FastifyReply
+  ) {
+    const { festaUsuario } = request as AuthenticatedFestaRequest;
+    const { id } = request.params as { id: string };
+    const body = atualizarEventoParceiroB2bSchema.parse(request.body);
+    const resultado = await parceiroB2bService.atualizarEventoComCreditoParceiro(
+      festaUsuario.parceiro_id,
+      id,
+      body
+    );
+    return reply.status(200).send(resultado);
   }
 
   async criarOperadorPortalParceiro(

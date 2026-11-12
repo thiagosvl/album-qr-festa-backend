@@ -8,12 +8,40 @@ import {
 } from "../constants/festa.enum.js";
 import { Constants } from "../types/database.types.js";
 
+export const itemProdutoPedidoSchema = z.object({
+  produto_id: z.string().uuid().nullable().optional(),
+  codigo_modulo: z.enum(Constants.public.Enums.festa_codigo_modulo_enum),
+  nome: z.string().min(2).max(120),
+  preco_centavos: z.number().int().min(0),
+  custo_creditos_b2b: z.number().int().min(0).default(0),
+});
+
 export const itemExtraPedidoSchema = z.object({
   extra_id: z.string().uuid().nullable().optional(),
   nome: z.string().min(2).max(120),
   quantidade: z.number().int().min(1).max(50).default(1),
   preco_unitario_centavos: z.number().int().min(0),
+  custo_creditos_b2b: z.number().int().min(0).default(0),
   entregue: z.boolean().default(false),
+});
+
+export const camposConviteEventoSchema = z.object({
+  convite_texto_chamada: z.string().max(300).nullable().optional(),
+  convite_foto_url: z.string().max(500).nullable().optional(),
+  convite_banner_topo_url: z.string().max(500).nullable().optional(),
+  convite_musica_url: z.string().max(500).nullable().optional(),
+  convite_audio_obrigado_url: z.string().max(500).nullable().optional(),
+  convite_horario_inicio: z.string().max(40).nullable().optional(),
+  convite_horario_texto: z.string().max(120).nullable().optional(),
+  convite_nome_local: z.string().max(160).nullable().optional(),
+  convite_endereco: z.string().max(300).nullable().optional(),
+  convite_exibir_presentes: z.boolean().optional(),
+  convite_titulo_tamanhos: z.string().max(120).nullable().optional(),
+  convite_tamanho_calcado: z.string().max(80).nullable().optional(),
+  convite_tamanho_roupa: z.string().max(80).nullable().optional(),
+  convite_ideias_presentes: z.array(z.string().max(120)).optional(),
+  convite_texto_prazo_rsvp: z.string().max(160).nullable().optional(),
+  convite_whatsapp_contato: z.string().max(40).nullable().optional(),
 });
 
 export const dadosAnfitriaoInputSchema = z.object({
@@ -28,7 +56,8 @@ export const criarEventoAdminSchema = z.object({
     .string()
     .min(2)
     .max(80)
-    .regex(/^[a-z0-9-]+$/),
+    .regex(/^[a-z0-9-]+$/)
+    .optional(),
   titulo: z.string().min(2).max(120),
   subtitulo: z.string().max(160).nullable().optional(),
   boas_vindas: z.string().max(300).nullable().optional(),
@@ -50,7 +79,12 @@ export const criarEventoAdminSchema = z.object({
   anfitriao: dadosAnfitriaoInputSchema.optional(),
   pacote: z
     .enum(Constants.public.Enums.festa_pacote_tipo_enum)
+    .nullable()
+    .optional()
     .default(FESTA_PACOTE_TIPO.BASICO),
+  inclui_galeria: z.boolean().optional(),
+  inclui_convite: z.boolean().optional(),
+  creditos_b2b_consumidos: z.number().int().min(0).optional(),
   status_pedido: z
     .enum(Constants.public.Enums.festa_status_pedido_enum)
     .default(FESTA_STATUS_PEDIDO.AGUARDANDO_SINAL),
@@ -71,8 +105,9 @@ export const criarEventoAdminSchema = z.object({
   tempo_slideshow_segundos: z.number().int().min(3).max(30).default(6),
   expira_em: z.string().datetime().nullable().optional(),
   ativo: z.boolean().default(true),
+  produtos: z.array(itemProdutoPedidoSchema).optional(),
   extras: z.array(itemExtraPedidoSchema).default([]),
-});
+}).merge(camposConviteEventoSchema);
 
 export const atualizarEventoAdminSchema = z.object({
   slug: z
@@ -100,7 +135,10 @@ export const atualizarEventoAdminSchema = z.object({
   tema_id: z.string().uuid().nullable().optional(),
   parceiro_id: z.string().uuid().nullable().optional(),
   anfitriao: dadosAnfitriaoInputSchema.optional(),
-  pacote: z.enum(Constants.public.Enums.festa_pacote_tipo_enum).optional(),
+  pacote: z.enum(Constants.public.Enums.festa_pacote_tipo_enum).nullable().optional(),
+  inclui_galeria: z.boolean().optional(),
+  inclui_convite: z.boolean().optional(),
+  creditos_b2b_consumidos: z.number().int().min(0).optional(),
   status_pedido: z
     .enum(Constants.public.Enums.festa_status_pedido_enum)
     .optional(),
@@ -121,8 +159,9 @@ export const atualizarEventoAdminSchema = z.object({
   tempo_slideshow_segundos: z.number().int().min(3).max(30).optional(),
   expira_em: z.string().datetime().nullable().optional(),
   ativo: z.boolean().optional(),
+  produtos: z.array(itemProdutoPedidoSchema).optional(),
   extras: z.array(itemExtraPedidoSchema).optional(),
-});
+}).merge(camposConviteEventoSchema);
 
 export const registrarPagamentoManualSchema = z.object({
   tipo_baixa: z.enum([
@@ -150,4 +189,5 @@ export type CriarEventoAdminInput = z.infer<typeof criarEventoAdminSchema>;
 export type AtualizarEventoAdminInput = z.infer<typeof atualizarEventoAdminSchema>;
 export type RegistrarPagamentoManualInput = z.infer<typeof registrarPagamentoManualSchema>;
 export type FiltroListagemEventosInput = z.infer<typeof filtroListagemEventosSchema>;
+export type ItemProdutoPedidoInput = z.infer<typeof itemProdutoPedidoSchema>;
 export type ItemExtraPedidoInput = z.infer<typeof itemExtraPedidoSchema>;

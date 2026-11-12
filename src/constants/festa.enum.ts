@@ -1,5 +1,6 @@
 import type {
   FestaCategoriaTemaEnum,
+  FestaCodigoModuloEnum,
   FestaEfeitoExtraEnum,
   FestaMetodoPagamentoEnum,
   FestaPacoteTipoEnum,
@@ -12,6 +13,7 @@ import type {
 } from "../types/database.js";
 
 export const FESTA_TABLES = {
+  CATALOGO_PRODUTOS: "festa_catalogo_produtos",
   CATALOGO_PACOTES_B2C: "festa_catalogo_pacotes_b2c",
   CATALOGO_EXTRAS_B2C: "festa_catalogo_extras_b2c",
   CATALOGO_PLANOS_B2B: "festa_catalogo_planos_b2b",
@@ -20,6 +22,8 @@ export const FESTA_TABLES = {
   USUARIOS: "festa_usuarios",
   TRANSACOES_CREDITOS_B2B: "festa_transacoes_creditos_b2b",
   EVENTOS: "festa_eventos",
+  EVENTO_PRODUTOS: "festa_evento_produtos",
+  EVENTO_CONFIRMACOES: "festa_evento_confirmacoes",
   EVENTO_EXTRAS: "festa_evento_extras",
   EVENTO_MOLDURAS: "festa_evento_molduras",
   EVENTO_MIDIAS: "festa_evento_midias",
@@ -48,6 +52,11 @@ export const FESTA_TIPO_PERFIL: Record<FestaTipoPerfilEnum, FestaTipoPerfilEnum>
 export const FESTA_PACOTE_TIPO: Record<FestaPacoteTipoEnum, FestaPacoteTipoEnum> = {
   BASICO: "BASICO",
   COMPLETO: "COMPLETO",
+} as const;
+
+export const FESTA_CODIGO_MODULO: Record<FestaCodigoModuloEnum, FestaCodigoModuloEnum> = {
+  GALERIA: "GALERIA",
+  CONVITE: "CONVITE",
 } as const;
 
 export const FESTA_STATUS_PEDIDO: Record<FestaStatusPedidoEnum, FestaStatusPedidoEnum> = {

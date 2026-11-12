@@ -6,6 +6,19 @@ import {
 } from "../constants/festa.enum.js";
 import { Constants } from "../types/database.types.js";
 
+export const atualizarProdutoB2cSchema = z.object({
+  nome_exibicao: z.string().min(2).max(100).optional(),
+  descricao: z.string().max(400).nullable().optional(),
+  preco_centavos: z.number().int().min(0).optional(),
+  preco_ancora_centavos: z.number().int().min(0).nullable().optional(),
+  custo_creditos_b2b: z.number().int().min(1).optional(),
+  disponivel_b2b: z.boolean().optional(),
+  limite_molduras_base: z.number().int().min(1).max(20).optional(),
+  dias_validade_base: z.number().int().min(1).max(3650).optional(),
+  ativo: z.boolean().optional(),
+  ordem: z.number().int().min(0).optional(),
+});
+
 export const atualizarPacoteB2cSchema = z.object({
   nome_exibicao: z.string().min(2).max(80).optional(),
   descricao: z.string().max(400).nullable().optional(),
@@ -29,6 +42,8 @@ export const salvarExtraB2cSchema = z.object({
   nome: z.string().min(2).max(100),
   descricao: z.string().max(300).nullable().optional(),
   preco_centavos: z.number().int().min(0),
+  custo_creditos_b2b: z.number().int().min(0).default(1),
+  disponivel_b2b: z.boolean().default(true),
   efeito_tipo: z
     .enum(Constants.public.Enums.festa_efeito_extra_enum)
     .default(FESTA_EFEITO_EXTRA.ENTREGAVEL_MANUAL),
@@ -47,6 +62,8 @@ export const atualizarExtraB2cSchema = z.object({
   nome: z.string().min(2).max(100).optional(),
   descricao: z.string().max(300).nullable().optional(),
   preco_centavos: z.number().int().min(0).optional(),
+  custo_creditos_b2b: z.number().int().min(0).optional(),
+  disponivel_b2b: z.boolean().optional(),
   efeito_tipo: z
     .enum(Constants.public.Enums.festa_efeito_extra_enum)
     .optional(),
@@ -108,6 +125,7 @@ export const atualizarTemaCatalogoSchema = z.object({
   ativo: z.boolean().optional(),
 });
 
+export type AtualizarProdutoB2cInput = z.infer<typeof atualizarProdutoB2cSchema>;
 export type AtualizarPacoteB2cInput = z.infer<typeof atualizarPacoteB2cSchema>;
 export type SalvarExtraB2cInput = z.infer<typeof salvarExtraB2cSchema>;
 export type AtualizarExtraB2cInput = z.infer<typeof atualizarExtraB2cSchema>;

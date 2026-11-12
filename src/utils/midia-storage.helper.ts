@@ -18,22 +18,18 @@ import type {
   ListaMidiasPaginadaDto,
   MidiaResponseDto,
 } from "../types/dtos/midia.dto.js";
+import { buscarEventoPorIdentificadorPublico } from "./evento-produtos.helper.js";
 
 export async function validarEventoParaEnvioMidia(
   slug: string,
   tipoMidia: RegistrarMidiaConvidadoInput["tipo_midia"]
 ) {
-  const { data: evento, error: evError } = await supabaseAdmin
-    .from(FESTA_TABLES.EVENTOS)
-    .select(
-      "id, ativo, permite_envio_midias, permite_video, moderacao_previa, expira_em"
-    )
-    .eq("slug", slug)
-    .maybeSingle();
-
-  if (evError) throw new AppError(evError.message, 500);
+  const evento = await buscarEventoPorIdentificadorPublico(slug);
   if (!evento) throw new AppError(messages.evento.naoEncontrado, 404);
   if (!evento.ativo) throw new AppError(messages.evento.inativo, 403);
+  if (!evento.inclui_galeria) {
+    throw new AppError(messages.evento.galeriaNaoContratada, 403);
+  }
 
   if (evento.expira_em && new Date(evento.expira_em).getTime() < Date.now()) {
     throw new AppError(messages.evento.expirado, 403);

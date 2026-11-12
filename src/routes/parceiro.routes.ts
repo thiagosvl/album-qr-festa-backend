@@ -23,6 +23,12 @@ export async function parceiroRoutes(app: FastifyInstance) {
     "/eventos",
     parceiroB2bController.criarEventoPortalParceiro.bind(parceiroB2bController)
   );
+  app.patch(
+    "/eventos/:id",
+    parceiroB2bController.atualizarEventoPortalParceiro.bind(
+      parceiroB2bController
+    )
+  );
   app.post(
     "/operadores",
     { preHandler: verifyFestaParceiroAdmin },

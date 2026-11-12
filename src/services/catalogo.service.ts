@@ -5,6 +5,7 @@ import { AppError } from "../errors/AppError.js";
 import type {
   AtualizarExtraB2cInput,
   AtualizarPacoteB2cInput,
+  AtualizarProdutoB2cInput,
   AtualizarTemaCatalogoInput,
   SalvarExtraB2cInput,
   SalvarTemaCatalogoInput,
@@ -12,13 +13,19 @@ import type {
 import type {
   FestaCatalogoExtraB2c,
   FestaCatalogoPacoteB2c,
+  FestaCatalogoProduto,
   FestaTemaCatalogo,
 } from "../types/database.js";
 import type { CatalogoPublicoResponseDto } from "../types/dtos/catalogo.dto.js";
 
 export class CatalogoService {
   async obterCatalogoPublico(): Promise<CatalogoPublicoResponseDto> {
-    const [pacotesRes, extrasRes, temasRes, planosB2bRes] = await Promise.all([
+    const [produtosRes, pacotesRes, extrasRes, temasRes, planosB2bRes] = await Promise.all([
+      supabaseAdmin
+        .from(FESTA_TABLES.CATALOGO_PRODUTOS)
+        .select("*")
+        .eq("ativo", true)
+        .order("ordem", { ascending: true }),
       supabaseAdmin
         .from(FESTA_TABLES.CATALOGO_PACOTES_B2C)
         .select("*")
@@ -42,12 +49,14 @@ export class CatalogoService {
         .order("ordem", { ascending: true }),
     ]);
 
+    if (produtosRes.error) throw new AppError(produtosRes.error.message, 500);
     if (pacotesRes.error) throw new AppError(pacotesRes.error.message, 500);
     if (extrasRes.error) throw new AppError(extrasRes.error.message, 500);
     if (temasRes.error) throw new AppError(temasRes.error.message, 500);
     if (planosB2bRes.error) throw new AppError(planosB2bRes.error.message, 500);
 
     return {
+      produtos_b2c: produtosRes.data,
       pacotes_b2c: pacotesRes.data,
       extras_b2c: extrasRes.data,
       temas: temasRes.data,
@@ -56,7 +65,11 @@ export class CatalogoService {
   }
 
   async listarCatalogoAdmin(): Promise<CatalogoPublicoResponseDto> {
-    const [pacotesRes, extrasRes, temasRes, planosB2bRes] = await Promise.all([
+    const [produtosRes, pacotesRes, extrasRes, temasRes, planosB2bRes] = await Promise.all([
+      supabaseAdmin
+        .from(FESTA_TABLES.CATALOGO_PRODUTOS)
+        .select("*")
+        .order("ordem", { ascending: true }),
       supabaseAdmin
         .from(FESTA_TABLES.CATALOGO_PACOTES_B2C)
         .select("*")
@@ -75,17 +88,35 @@ export class CatalogoService {
         .order("ordem", { ascending: true }),
     ]);
 
+    if (produtosRes.error) throw new AppError(produtosRes.error.message, 500);
     if (pacotesRes.error) throw new AppError(pacotesRes.error.message, 500);
     if (extrasRes.error) throw new AppError(extrasRes.error.message, 500);
     if (temasRes.error) throw new AppError(temasRes.error.message, 500);
     if (planosB2bRes.error) throw new AppError(planosB2bRes.error.message, 500);
 
     return {
+      produtos_b2c: produtosRes.data,
       pacotes_b2c: pacotesRes.data,
       extras_b2c: extrasRes.data,
       temas: temasRes.data,
       planos_b2b: planosB2bRes.data,
     };
+  }
+
+  async atualizarProdutoB2c(
+    id: string,
+    input: AtualizarProdutoB2cInput
+  ): Promise<FestaCatalogoProduto> {
+    const { data, error } = await supabaseAdmin
+      .from(FESTA_TABLES.CATALOGO_PRODUTOS)
+      .update(input)
+      .eq("id", id)
+      .select("*")
+      .maybeSingle();
+
+    if (error) throw new AppError(error.message, 500);
+    if (!data) throw new AppError(messages.catalogo.produtoNaoEncontrado, 404);
+    return data;
   }
 
   async atualizarPacoteB2c(

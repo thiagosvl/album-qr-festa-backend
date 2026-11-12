@@ -2,6 +2,7 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 import {
   atualizarExtraB2cSchema,
   atualizarPacoteB2cSchema,
+  atualizarProdutoB2cSchema,
   atualizarTemaCatalogoSchema,
   salvarExtraB2cSchema,
   salvarTemaCatalogoSchema,
@@ -16,6 +17,13 @@ export class CatalogoController {
 
   async listarAdmin(_request: FastifyRequest, reply: FastifyReply) {
     const resultado = await catalogoService.listarCatalogoAdmin();
+    return reply.status(200).send(resultado);
+  }
+
+  async atualizarProdutoB2c(request: FastifyRequest, reply: FastifyReply) {
+    const { id } = request.params as { id: string };
+    const body = atualizarProdutoB2cSchema.parse(request.body);
+    const resultado = await catalogoService.atualizarProdutoB2c(id, body);
     return reply.status(200).send(resultado);
   }
 

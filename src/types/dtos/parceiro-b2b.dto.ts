@@ -1,5 +1,7 @@
 import type {
+  FestaCatalogoExtraB2c,
   FestaCatalogoPlanoB2b,
+  FestaCatalogoProduto,
   FestaParceiroB2b,
   FestaTemaCatalogo,
   FestaTipoPerfilEnum,
@@ -20,6 +22,8 @@ export interface PortalParceiroB2bDto {
   parceiro: ParceiroB2bAdminDto;
   perfil_usuario: FestaTipoPerfilEnum;
   planos_b2b: FestaCatalogoPlanoB2b[];
+  produtos_b2c: FestaCatalogoProduto[];
+  extras_b2c: FestaCatalogoExtraB2c[];
   eventos: EventoAdminResponseDto[];
   temas: FestaTemaCatalogo[];
   operadores: FestaUsuario[];

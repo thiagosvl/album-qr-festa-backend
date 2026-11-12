@@ -17,6 +17,7 @@ import type {
   FestaEvento,
   FestaEventoExtra,
   FestaEventoMoldura,
+  FestaEventoProduto,
   FestaTemaCatalogo,
   FestaUsuario,
 } from "../types/database.js";
@@ -31,6 +32,7 @@ import { removerMidiasEArquivosStorage } from "./midia-storage.helper.js";
 
 export interface EfeitosCalculadosExtras {
   valorExtrasCentavos: number;
+  creditosExtrasB2b: number;
   moldurasAdicionais: number;
   diasGaleriaAdicionais: number;
   liberarVideo: boolean;
@@ -40,6 +42,7 @@ export interface EfeitosCalculadosExtras {
 export interface EventoComRelacoesRow extends FestaEvento {
   anfitriao?: FestaUsuario | null;
   tema?: FestaTemaCatalogo | null;
+  produtos?: FestaEventoProduto[];
   extras?: FestaEventoExtra[];
   molduras?: FestaEventoMoldura[];
 }
@@ -48,6 +51,7 @@ export async function calcularEfeitosExtrasEvento(
   extrasInput: ItemExtraPedidoInput[]
 ): Promise<EfeitosCalculadosExtras> {
   let valorExtrasCentavos = 0;
+  let creditosExtrasB2b = 0;
   let moldurasAdicionais = 0;
   let diasGaleriaAdicionais = 0;
   let liberarVideo = false;
@@ -71,9 +75,21 @@ export async function calcularEfeitosExtrasEvento(
 
   for (const item of extrasInput) {
     valorExtrasCentavos += item.preco_unitario_centavos * item.quantidade;
-    if (!item.extra_id) continue;
+    if (!item.extra_id) {
+      creditosExtrasB2b += (item.custo_creditos_b2b ?? 0) * item.quantidade;
+      continue;
+    }
     const cat = mapaCatalogo.get(item.extra_id);
-    if (!cat) continue;
+    if (!cat) {
+      creditosExtrasB2b += (item.custo_creditos_b2b ?? 0) * item.quantidade;
+      continue;
+    }
+
+    const custoCreditoItem =
+      item.custo_creditos_b2b && item.custo_creditos_b2b > 0
+        ? item.custo_creditos_b2b
+        : cat.custo_creditos_b2b;
+    creditosExtrasB2b += custoCreditoItem * item.quantidade;
 
     if (cat.efeito_tipo === FESTA_EFEITO_EXTRA.MOLDURA_ADICIONAL) {
       moldurasAdicionais += cat.efeito_valor * item.quantidade;
@@ -88,6 +104,7 @@ export async function calcularEfeitosExtrasEvento(
 
   return {
     valorExtrasCentavos,
+    creditosExtrasB2b,
     moldurasAdicionais,
     diasGaleriaAdicionais,
     liberarVideo,
@@ -159,10 +176,12 @@ export function calcularNovaBaixaPagamento(
 
 export function mapearEventoAdminDto(
   item: EventoComRelacoesRow,
-  totalMidias: number
+  totalMidias: number,
+  totalConfirmadosPessoas = 0
 ): EventoAdminResponseDto {
   const anfitriao = item.anfitriao ?? null;
   const tema = item.tema ?? null;
+  const produtos = item.produtos ?? [];
   const extras = item.extras ?? [];
   const molduras = [...(item.molduras ?? [])]
     .sort((a, b) => a.ordem - b.ordem)
@@ -172,9 +191,11 @@ export function mapearEventoAdminDto(
     ...item,
     anfitriao,
     tema,
+    produtos,
     extras,
     molduras,
     total_midias: totalMidias,
+    total_confirmados_pessoas: totalConfirmadosPessoas,
     valor_restante_centavos: Math.max(
       0,
       item.valor_total_centavos - item.valor_pago_centavos
@@ -237,6 +258,7 @@ export async function substituirExtrasEvento(
           nome: ex.nome,
           quantidade: ex.quantidade,
           preco_unitario_centavos: ex.preco_unitario_centavos,
+          custo_creditos_b2b: ex.custo_creditos_b2b ?? 0,
           entregue: ex.entregue,
         }))
       );
@@ -254,6 +276,7 @@ export function mapearEventoPublicoDto(
 
   return {
     id: evento.id,
+    codigo_url: evento.codigo_url,
     slug: evento.slug,
     titulo: evento.titulo,
     subtitulo: evento.subtitulo,
@@ -265,6 +288,8 @@ export function mapearEventoPublicoDto(
     cor_secundaria: evento.cor_secundaria,
     capa_url: evento.capa_url,
     pacote: evento.pacote,
+    inclui_galeria: evento.inclui_galeria,
+    inclui_convite: evento.inclui_convite,
     inclui_telao: evento.inclui_telao,
     galeria_publica: evento.galeria_publica,
     moderacao_previa: evento.moderacao_previa,

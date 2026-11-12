@@ -1,5 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { catalogoController } from "../controllers/catalogo.controller.js";
+import { conviteController } from "../controllers/convite.controller.js";
 import { eventoController } from "../controllers/evento.controller.js";
 import { gestaoEventoController } from "../controllers/gestao-evento.controller.js";
 import { midiaController } from "../controllers/midia.controller.js";
@@ -17,6 +18,10 @@ export async function adminRoutes(app: FastifyInstance) {
     exclusivoAdmin.get(
       "/catalogo",
       catalogoController.listarAdmin.bind(catalogoController)
+    );
+    exclusivoAdmin.patch(
+      "/catalogo/produtos/:id",
+      catalogoController.atualizarProdutoB2c.bind(catalogoController)
     );
     exclusivoAdmin.patch(
       "/catalogo/pacotes/:id",
@@ -146,6 +151,23 @@ export async function adminRoutes(app: FastifyInstance) {
     eventoGerenciavel.get(
       "/eventos/:eventoId/midias/zip",
       midiaController.baixarZipPorEventoAdmin.bind(midiaController)
+    );
+
+    eventoGerenciavel.get(
+      "/eventos/:eventoId/confirmacoes",
+      conviteController.listarPorEvento.bind(conviteController)
+    );
+    eventoGerenciavel.post(
+      "/eventos/:eventoId/confirmacoes",
+      conviteController.criarPorEvento.bind(conviteController)
+    );
+    eventoGerenciavel.patch(
+      "/eventos/:eventoId/confirmacoes/:confirmacaoId",
+      conviteController.atualizarPorEvento.bind(conviteController)
+    );
+    eventoGerenciavel.delete(
+      "/eventos/:eventoId/confirmacoes/:confirmacaoId",
+      conviteController.excluirPorEvento.bind(conviteController)
     );
   });
 }

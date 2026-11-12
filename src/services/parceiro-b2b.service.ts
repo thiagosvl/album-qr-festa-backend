@@ -1,12 +1,12 @@
 import { supabaseAdmin } from "../config/supabase.js";
 import {
-  FESTA_PACOTE_TIPO,
   FESTA_TABLES,
   FESTA_TIPO_TRANSACAO_CREDITO,
 } from "../constants/festa.enum.js";
 import { messages } from "../constants/messages.js";
 import { AppError } from "../errors/AppError.js";
 import type {
+  AtualizarEventoParceiroB2bInput,
   AtualizarOperadorParceiroInput,
   AtualizarParceiroB2bInput,
   AtualizarPerfilPortalParceiroInput,
@@ -39,6 +39,7 @@ import {
   criarOperadorParceiroB2b,
   excluirOperadorParceiroB2b,
   listarOperadoresParceiroB2b,
+  montarInputAtualizacaoEventoParceiroB2b,
   montarInputEventoCreditoParceiroB2b,
 } from "../utils/parceiro-operadores.helper.js";
 import { eventoService } from "./evento.service.js";
@@ -211,25 +212,46 @@ export class ParceiroB2bService {
   ): Promise<PortalParceiroB2bDto> {
     const idValido = validarParceiroIdObrigatorio(parceiroId);
 
-    const [parceirosAdmin, planosRes, temasRes, todosEventos, operadores] =
-      await Promise.all([
-        this.listarParceirosAdmin(),
-        supabaseAdmin
-          .from(FESTA_TABLES.CATALOGO_PLANOS_B2B)
-          .select("*")
-          .order("ordem", { ascending: true }),
-        supabaseAdmin
-          .from(FESTA_TABLES.TEMAS_CATALOGO)
-          .select("*")
-          .eq("ativo", true)
-          .order("ordem", { ascending: true }),
-        eventoService.listarEventosAdmin({
-          incluir_demo: false,
-        }),
-        listarOperadoresParceiroB2b(idValido),
-      ]);
+    const [
+      parceirosAdmin,
+      planosRes,
+      produtosRes,
+      extrasRes,
+      temasRes,
+      todosEventos,
+      operadores,
+    ] = await Promise.all([
+      this.listarParceirosAdmin(),
+      supabaseAdmin
+        .from(FESTA_TABLES.CATALOGO_PLANOS_B2B)
+        .select("*")
+        .order("ordem", { ascending: true }),
+      supabaseAdmin
+        .from(FESTA_TABLES.CATALOGO_PRODUTOS)
+        .select("*")
+        .eq("ativo", true)
+        .eq("disponivel_b2b", true)
+        .order("ordem", { ascending: true }),
+      supabaseAdmin
+        .from(FESTA_TABLES.CATALOGO_EXTRAS_B2C)
+        .select("*")
+        .eq("ativo", true)
+        .eq("disponivel_b2b", true)
+        .order("ordem", { ascending: true }),
+      supabaseAdmin
+        .from(FESTA_TABLES.TEMAS_CATALOGO)
+        .select("*")
+        .eq("ativo", true)
+        .order("ordem", { ascending: true }),
+      eventoService.listarEventosAdmin({
+        incluir_demo: false,
+      }),
+      listarOperadoresParceiroB2b(idValido),
+    ]);
 
     if (planosRes.error) throw new AppError(planosRes.error.message, 500);
+    if (produtosRes.error) throw new AppError(produtosRes.error.message, 500);
+    if (extrasRes.error) throw new AppError(extrasRes.error.message, 500);
     if (temasRes.error) throw new AppError(temasRes.error.message, 500);
 
     const parceiroAutenticado = parceirosAdmin.find((p) => p.id === idValido);
@@ -250,6 +272,8 @@ export class ParceiroB2bService {
       parceiro: parceiroAutenticado,
       perfil_usuario: perfilUsuario,
       planos_b2b: planosRes.data ?? [],
+      produtos_b2c: produtosRes.data ?? [],
+      extras_b2c: extrasRes.data ?? [],
       eventos: eventosParceiro,
       temas: temasDisponiveis,
       operadores,
@@ -292,14 +316,10 @@ export class ParceiroB2bService {
     input: CriarEventoParceiroB2bInput
   ): Promise<EventoAdminResponseDto> {
     const idValido = validarParceiroIdObrigatorio(parceiroId);
-    const todos = await this.listarParceirosAdmin();
-    const parceiro = todos.find((p) => p.id === idValido);
-    if (!parceiro) throw new AppError(messages.parceiro.naoEncontrado, 404);
+    const parceiro = await this.obterParceiroAdminPorId(idValido);
 
-    const custoCreditos =
-      input.pacote === FESTA_PACOTE_TIPO.COMPLETO
-        ? (parceiro.plano?.custo_creditos_completo ?? 2)
-        : (parceiro.plano?.custo_creditos_basico ?? 1);
+    const { adminInput, custoCreditos } =
+      await montarInputEventoCreditoParceiroB2b(parceiro.id, input);
 
     if (parceiro.saldo_creditos < custoCreditos) {
       throw new AppError(
@@ -308,16 +328,14 @@ export class ParceiroB2bService {
       );
     }
 
-    const eventoCriado = await eventoService.criarEventoAdmin(
-      montarInputEventoCreditoParceiroB2b(parceiro.id, input)
-    );
+    const eventoCriado = await eventoService.criarEventoAdmin(adminInput);
 
     await supabaseAdmin.from(FESTA_TABLES.TRANSACOES_CREDITOS_B2B).insert({
       parceiro_id: parceiro.id,
       evento_id: eventoCriado.id,
       tipo: FESTA_TIPO_TRANSACAO_CREDITO.CONSUMO_EVENTO,
       quantidade: -custoCreditos,
-      observacao: `Criação do evento "${eventoCriado.titulo}" (${input.pacote})`,
+      observacao: `Criação do evento "${eventoCriado.titulo}" (${custoCreditos} crédito(s))`,
     });
 
     await supabaseAdmin
@@ -326,6 +344,54 @@ export class ParceiroB2bService {
       .eq("id", parceiro.id);
 
     return eventoCriado;
+  }
+
+  async atualizarEventoComCreditoParceiro(
+    parceiroId: string | null | undefined,
+    eventoId: string,
+    input: AtualizarEventoParceiroB2bInput
+  ): Promise<EventoAdminResponseDto> {
+    const idValido = validarParceiroIdObrigatorio(parceiroId);
+    const [parceiro, eventoAtual] = await Promise.all([
+      this.obterParceiroAdminPorId(idValido),
+      eventoService.obterEventoAdminPorId(eventoId),
+    ]);
+
+    if (eventoAtual.parceiro_id !== parceiro.id) {
+      throw new AppError(messages.auth.eventoNaoPertenceAoParceiro, 403);
+    }
+
+    const { adminInput, diferencaCreditos } =
+      await montarInputAtualizacaoEventoParceiroB2b(eventoAtual, input);
+
+    if (diferencaCreditos > 0 && parceiro.saldo_creditos < diferencaCreditos) {
+      throw new AppError(
+        `Saldo de créditos insuficiente para o upgrade. Necessário: +${diferencaCreditos} crédito(s); disponível: ${parceiro.saldo_creditos}.`,
+        400
+      );
+    }
+
+    const eventoAtualizado = await eventoService.atualizarEventoAdmin(
+      eventoId,
+      adminInput
+    );
+
+    if (diferencaCreditos > 0) {
+      await supabaseAdmin.from(FESTA_TABLES.TRANSACOES_CREDITOS_B2B).insert({
+        parceiro_id: parceiro.id,
+        evento_id: eventoAtualizado.id,
+        tipo: FESTA_TIPO_TRANSACAO_CREDITO.CONSUMO_EVENTO,
+        quantidade: -diferencaCreditos,
+        observacao: `Upgrade do evento "${eventoAtualizado.titulo}" (+${diferencaCreditos} crédito(s))`,
+      });
+
+      await supabaseAdmin
+        .from(FESTA_TABLES.PARCEIROS_B2B)
+        .update({ saldo_creditos: parceiro.saldo_creditos - diferencaCreditos })
+        .eq("id", parceiro.id);
+    }
+
+    return eventoAtualizado;
   }
 }
 
