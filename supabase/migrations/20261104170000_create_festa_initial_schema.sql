@@ -482,7 +482,7 @@ ON CONFLICT (slug) DO NOTHING;
 INSERT INTO public.festa_usuarios (auth_user_id, nome, email, tipo_perfil, ativo)
 SELECT
   u.id,
-  COALESCE(u.raw_user_meta_data->>'nome', 'Administrador Álbum QR Festa'),
+  COALESCE(u.raw_user_meta_data->>'nome', 'Administrador Festalgia'),
   u.email,
   'ADMIN'::public.festa_tipo_perfil_enum,
   true

@@ -4,6 +4,7 @@ export const UPLOAD_TIPOS_PERMITIDOS = {
   "image/jpeg": ["jpg", "jpeg"],
   "image/png": ["png"],
   "image/webp": ["webp"],
+  "application/pdf": ["pdf"],
   "video/mp4": ["mp4"],
   "video/quicktime": ["mov"],
   "video/webm": ["webm"],
