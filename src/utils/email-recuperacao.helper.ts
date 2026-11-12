@@ -30,8 +30,8 @@ function montarHtmlRecuperacaoSenha(params: {
       <p style="margin:0 0 24px;font-size:14px;line-height:1.6;color:#5f5870;">
         Recebemos uma solicitação para redefinir a senha da sua conta. Digite o código de 6 dígitos abaixo na tela de recuperação:
       </p>
-      <div style="background:#f8f4fc;border:2px dashed #d6c5f5;border-radius:16px;padding:22px;text-align:center;margin-bottom:24px;">
-        <p style="margin:0 0 6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#7b3fe4;">Código de Verificação</p>
+      <div style="background:#faf3f9;border:2px dashed #dcc3d8;border-radius:16px;padding:22px;text-align:center;margin-bottom:24px;">
+        <p style="margin:0 0 6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#54074B;">Código de Verificação</p>
         <p style="margin:0;font-family:'Courier New',monospace;font-size:32px;font-weight:800;letter-spacing:10px;color:#1b1525;">${params.codigo}</p>
         <p style="margin:8px 0 0;font-size:12px;color:#8e879e;">Válido por 15 minutos</p>
       </div>
