@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { catalogoController } from "../controllers/catalogo.controller.js";
 import { eventoController } from "../controllers/evento.controller.js";
 import { midiaController } from "../controllers/midia.controller.js";
+import { uploadController } from "../controllers/upload.controller.js";
 
 export async function publicRoutes(app: FastifyInstance) {
   app.get("/catalogo", catalogoController.obterPublico.bind(catalogoController));
@@ -21,6 +22,11 @@ export async function publicRoutes(app: FastifyInstance) {
   app.delete(
     "/eventos/:slug/midias/:midiaId",
     midiaController.excluirPropriaMidiaConvidado.bind(midiaController)
+  );
+
+  app.post(
+    "/uploads/presign",
+    uploadController.solicitarUploadEvento.bind(uploadController)
   );
 
   app.post(

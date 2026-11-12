@@ -53,6 +53,11 @@ export const messages = {
     semPermissaoExclusao: "Você só pode remover mídias enviadas pelo seu próprio aparelho.",
     videoNaoPermitido: "Este evento não possui o envio de vídeos habilitado.",
   },
+  upload: {
+    tipoInvalido: "Tipo de arquivo não permitido.",
+    arquivoGrande: "O arquivo excede o tamanho máximo permitido.",
+    caminhoNaoPermitido: "Caminho de upload não permitido.",
+  },
   catalogo: {
     pacoteNaoEncontrado: "Pacote não encontrado no catálogo.",
     extraNaoEncontrado: "Item extra não encontrado no catálogo.",

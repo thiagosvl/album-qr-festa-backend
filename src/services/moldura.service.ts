@@ -1,5 +1,6 @@
-import { getPublicStorageUrl, supabaseAdmin } from "../config/supabase.js";
-import { FESTA_BUCKETS, FESTA_TABLES } from "../constants/festa.enum.js";
+import { getPublicStorageUrl, removerArquivosStorage } from "../config/r2.js";
+import { supabaseAdmin } from "../config/supabase.js";
+import { FESTA_TABLES } from "../constants/festa.enum.js";
 import { messages } from "../constants/messages.js";
 import { AppError } from "../errors/AppError.js";
 import type {
@@ -21,7 +22,7 @@ export function formatarMolduraDto(moldura: FestaEventoMoldura): MolduraResponse
     ...moldura,
     arquivo_url: isDirectUrl
       ? moldura.arquivo_path
-      : getPublicStorageUrl(FESTA_BUCKETS.MIDIAS, moldura.arquivo_path),
+      : getPublicStorageUrl(moldura.arquivo_path),
   };
 }
 
@@ -178,7 +179,7 @@ export class MolduraService {
     const isStoragePath =
       !moldura.arquivo_path.startsWith("http") && !moldura.arquivo_path.startsWith("/");
     if (isStoragePath) {
-      await supabaseAdmin.storage.from(FESTA_BUCKETS.MIDIAS).remove([moldura.arquivo_path]);
+      await removerArquivosStorage([moldura.arquivo_path]);
     }
   }
 

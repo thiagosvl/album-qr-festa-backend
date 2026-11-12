@@ -38,10 +38,6 @@ export const FESTA_VARIACAO_CURTIDA = {
 export type FestaVariacaoCurtida =
   (typeof FESTA_VARIACAO_CURTIDA)[keyof typeof FESTA_VARIACAO_CURTIDA];
 
-export const FESTA_BUCKETS = {
-  MIDIAS: "festa-midias",
-} as const;
-
 export const FESTA_TIPO_PERFIL: Record<FestaTipoPerfilEnum, FestaTipoPerfilEnum> = {
   ADMIN: "ADMIN",
   ANFITRIAO: "ANFITRIAO",

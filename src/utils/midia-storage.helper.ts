@@ -2,9 +2,9 @@ import archiver from "archiver";
 import type { FastifyReply } from "fastify";
 import { Readable } from "stream";
 import type { ReadableStream as WebReadableStream } from "stream/web";
-import { getPublicStorageUrl, supabaseAdmin } from "../config/supabase.js";
+import { getPublicStorageUrl, removerArquivosStorage } from "../config/r2.js";
+import { supabaseAdmin } from "../config/supabase.js";
 import {
-  FESTA_BUCKETS,
   FESTA_STATUS_MODERACAO,
   FESTA_TABLES,
   FESTA_TIPO_MIDIA,
@@ -55,8 +55,8 @@ export function formatarMidiaDto(midia: FestaEventoMidia): MidiaResponseDto {
 
   return {
     ...midia,
-    url_publica: getPublicStorageUrl(FESTA_BUCKETS.MIDIAS, midia.path),
-    url_miniatura: getPublicStorageUrl(FESTA_BUCKETS.MIDIAS, thumbPath),
+    url_publica: getPublicStorageUrl(midia.path),
+    url_miniatura: getPublicStorageUrl(thumbPath),
   };
 }
 
@@ -100,9 +100,7 @@ export async function removerMidiasEArquivosStorage(
   if (error) throw new AppError(error.message, 500);
 
   if (pathsParaRemover.length > 0) {
-    await supabaseAdmin.storage
-      .from(FESTA_BUCKETS.MIDIAS)
-      .remove(pathsParaRemover);
+    await removerArquivosStorage(pathsParaRemover);
   }
 }
 
@@ -130,7 +128,7 @@ export async function montarManifestoDownloadEvento(
     return {
       id: midia.id,
       nome_arquivo: `foto-${numero}${sufixoAutor}.${extensao}`,
-      url_publica: getPublicStorageUrl(FESTA_BUCKETS.MIDIAS, midia.path),
+      url_publica: getPublicStorageUrl(midia.path),
       autor: midia.autor,
       created_at: midia.created_at,
     };

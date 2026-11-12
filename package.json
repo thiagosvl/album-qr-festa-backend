@@ -12,6 +12,8 @@
     "deploy": "git pull && npm install && npm run build && pm2 reload festalgia-api --update-env"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1167.0",
+    "@aws-sdk/s3-request-presigner": "^3.1167.0",
     "@fastify/cors": "11.1.0",
     "@supabase/supabase-js": "2.79.0",
     "archiver": "^7.0.1",

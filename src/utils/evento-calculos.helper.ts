@@ -1,6 +1,5 @@
 import { supabaseAdmin } from "../config/supabase.js";
 import {
-  FESTA_BUCKETS,
   FESTA_EFEITO_EXTRA,
   FESTA_STATUS_PEDIDO,
   FESTA_TABLES,
@@ -27,6 +26,7 @@ import type {
 } from "../types/dtos/evento.dto.js";
 import type { MolduraResponseDto } from "../types/dtos/moldura.dto.js";
 import { formatarMolduraDto } from "../services/moldura.service.js";
+import { removerArquivosStorage } from "../config/r2.js";
 import { removerMidiasEArquivosStorage } from "./midia-storage.helper.js";
 
 export interface EfeitosCalculadosExtras {
@@ -301,9 +301,7 @@ export async function limparArquivosERelacoesEvento(
     .filter((p) => !p.startsWith("http") && !p.startsWith("/"));
 
   if (pathsMolduras.length > 0) {
-    await supabaseAdmin.storage
-      .from(FESTA_BUCKETS.MIDIAS)
-      .remove(pathsMolduras);
+    await removerArquivosStorage(pathsMolduras);
   }
 
   await supabaseAdmin
