@@ -2,7 +2,11 @@ import { env } from "../config/env.js";
 import { logger } from "../config/logger.js";
 import { messages } from "../constants/messages.js";
 import { AppError } from "../errors/AppError.js";
-import { NOME_MARCA } from "../constants/marca.js";
+import {
+  COR_MARCA_EMAIL,
+  NOME_MARCA,
+  URL_LOGO_EMAIL,
+} from "../constants/marca.js";
 
 function montarHtmlRecuperacaoSenha(params: {
   nome: string;
@@ -17,9 +21,9 @@ function montarHtmlRecuperacaoSenha(params: {
 </head>
 <body style="margin:0;padding:0;background-color:#faf7f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#1b1525;">
   <div style="max-width:560px;margin:28px auto;background:#ffffff;border:1px solid #ece6f4;border-radius:20px;overflow:hidden;">
-    <div style="background:linear-gradient(135deg,#e6007e,#7b3fe4);padding:28px 32px;text-align:center;">
-      <p style="margin:0;color:#ffffff;font-size:18px;font-weight:800;letter-spacing:0.04em;">${NOME_MARCA}</p>
-      <p style="margin:6px 0 0;color:rgba(255,255,255,0.88);font-size:13px;">Recuperação de Acesso</p>
+    <div style="background-color:${COR_MARCA_EMAIL};padding:28px 32px;text-align:center;">
+      <img src="${URL_LOGO_EMAIL}" alt="${NOME_MARCA}" width="220" height="71" style="display:block;margin:0 auto;border:0;outline:none;width:220px;max-width:100%;height:auto;color:#ffffff;font-size:20px;font-weight:800;" />
+      <p style="margin:12px 0 0;color:rgba(255,255,255,0.88);font-size:13px;">Recuperação de Acesso</p>
     </div>
     <div style="padding:32px;">
       <p style="margin:0 0 12px;font-size:16px;font-weight:700;color:#1b1525;">Olá, ${params.nome}!</p>
