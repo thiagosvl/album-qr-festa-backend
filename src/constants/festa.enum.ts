@@ -118,7 +118,7 @@ export type FestaTipoBaixaPagamento =
   (typeof FESTA_TIPO_BAIXA_PAGAMENTO)[keyof typeof FESTA_TIPO_BAIXA_PAGAMENTO];
 
 export const FESTA_CORES_PADRAO = {
-  PRIMARIA: "#e6007e",
-  SECUNDARIA: "#7b3fe4",
-  PARCEIRO_MARCA: "#7c3aed",
+  PRIMARIA: "#54074B",
+  SECUNDARIA: "#F7AF1F",
+  PARCEIRO_MARCA: "#54074B",
 } as const;
