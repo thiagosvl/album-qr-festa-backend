@@ -3,7 +3,7 @@ SET
   data_evento = COALESCE(data_evento, '2026-12-18'::date),
   capa_url = COALESCE(
     capa_url,
-    'https://jztyffakurtekwxurclw.supabase.co/storage/v1/object/public/festa-midias/demo/midias/capa-demo.jpg'
+    'https://fotos.festalgia.com.br/demo/midias/capa-demo.jpg'
   )
 WHERE slug = 'demo';
 
@@ -61,18 +61,18 @@ WHERE ev.slug = 'demo'
 
 UPDATE public.festa_temas_catalogo
 SET
-  moldura_preview_url = 'https://jztyffakurtekwxurclw.supabase.co/storage/v1/object/public/festa-midias/demo/molduras/moldura-jardim.png',
-  thumb_url = 'https://jztyffakurtekwxurclw.supabase.co/storage/v1/object/public/festa-midias/demo/midias/capa-demo.jpg'
+  moldura_preview_url = 'https://fotos.festalgia.com.br/demo/molduras/moldura-jardim.png',
+  thumb_url = 'https://fotos.festalgia.com.br/demo/midias/capa-demo.jpg'
 WHERE slug = 'jardim-encantado';
 
 UPDATE public.festa_temas_catalogo
 SET
-  moldura_preview_url = 'https://jztyffakurtekwxurclw.supabase.co/storage/v1/object/public/festa-midias/demo/molduras/moldura-estrelas.png'
+  moldura_preview_url = 'https://fotos.festalgia.com.br/demo/molduras/moldura-estrelas.png'
 WHERE slug IN ('aventura-espacial', 'quinze-anos-estrelado');
 
 UPDATE public.festa_temas_catalogo
 SET
-  moldura_preview_url = 'https://jztyffakurtekwxurclw.supabase.co/storage/v1/object/public/festa-midias/demo/molduras/moldura-coracoes.png'
+  moldura_preview_url = 'https://fotos.festalgia.com.br/demo/molduras/moldura-coracoes.png'
 WHERE slug IN ('safari-baby', 'casamento-classico');
 
 INSERT INTO public.festa_parceiros_b2b (
